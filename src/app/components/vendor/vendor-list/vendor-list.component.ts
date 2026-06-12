@@ -217,7 +217,7 @@ export class VendorListComponent implements OnInit {
     this.router.navigate(['/vendors', id, 'edit']);
   }
   viewVendor(id: string): void {
-    this.router.navigate(['/vendors', id, 'info']);
+    this.router.navigate(['/vendors', id]);
   }
 
     /** Helper: get primary contact from a vendor */

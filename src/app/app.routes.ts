@@ -25,7 +25,7 @@ export const routes: Routes = [
     title: 'Add Vendor',
   },
   {
-    path: 'vendors/:id/info',
+    path: 'vendors/:id',
     loadComponent: () =>
       import('./components/vendor/vendor-detail/vendor-detail.component').then(
         (m) => m.VendorDetailComponent,
