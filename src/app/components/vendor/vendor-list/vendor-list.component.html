@@ -16,14 +16,14 @@
   <!-- Stats Row -->
   <div class="stats-row">
     <div class="stat-card">
-      <span class="material-icons-outlined stat-icon">inventory</span>
+      <span class="material-icons-outlined stat-icon">person</span>
       <div class="stat-info">
         <span class="stat-value">{{ store.stats().total }}</span>
         <span class="stat-label">Total Vendors</span>
       </div>
     </div>
     <div class="stat-card">
-      <span class="material-icons-outlined stat-icon icon-value">account_balance_wallet</span>
+      <span class="material-icons-outlined stat-icon icon-value">check</span>
       <div class="stat-info">
         <span class="stat-value">{{ store.stats().active }}</span>
         <span class="stat-label">Active</span>
@@ -80,7 +80,7 @@
       @if (isMobileView()) {
 
         @for (vendor of store.filteredVendors(); track vendor.id) {
-          <div class="vendor-card" (click)="onCardClick(vendor)">
+          <div class="vendor-card">
 
             @if (store.filteredVendors().length === 0) {
               <div class="card-empty">
@@ -123,11 +123,14 @@
 
             <!-- Card footer -->
             <div class="card-footer">
-              <button class="card-btn view" (click)="onCardView($event, vendor)">View</button>
-              <button class="card-btn edit"
-                (click)="onCardEdit($event, vendor)">Edit</button>
-              <button class="card-btn delete"
-                (click)="onCardDelete($event, vendor)">Delete</button>
+              <button class="btn btn-primary btn-sm" 
+              (click)="onCardView($event, vendor)">
+              <span class="material-icons-outlined" style="font-size:16px">visibility</span> View</button>
+              <button class="btn btn-secondary btn-sm"
+                (click)="onCardEdit($event, vendor)">
+                <span class="material-icons-outlined" style="font-size:16px">edit</span>Edit</button>
+              <button class="btn btn-danger btn-sm"
+                (click)="onCardDelete($event, vendor)"><span class="material-icons-outlined" style="font-size:16px">delete_outline</span></button>
             </div>
 
           </div>

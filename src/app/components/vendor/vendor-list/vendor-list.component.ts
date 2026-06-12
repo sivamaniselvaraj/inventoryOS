@@ -129,7 +129,7 @@ export class VendorListComponent implements OnInit {
               const viewBtn = document.createElement('button');
               viewBtn.className = 'btn btn-ghost btn-sm';
               viewBtn.title = 'View';
-              viewBtn.innerHTML = '<span class="material-icons-outlined" style="font-size:18px">pageview</span>';
+              viewBtn.innerHTML = '<span class="material-icons-outlined" style="font-size:18px">visibility</span>';
               viewBtn.addEventListener('click', () => this.viewVendor(params.data!.id));
 
               const editBtn = document.createElement('button');
@@ -200,7 +200,8 @@ export class VendorListComponent implements OnInit {
   }
   onCardView(event: MouseEvent, vendor: Vendor) {
     event.stopPropagation();
-    this.store.selectVendor(vendor);
+    //this.store.selectVendor(vendor);
+    this.viewVendor(vendor.id);
   }
 
   onCardDelete(event: MouseEvent, vendor: Vendor) {

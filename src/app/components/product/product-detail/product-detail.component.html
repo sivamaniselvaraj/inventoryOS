@@ -1,0 +1,315 @@
+@if (product(); as product) {
+  <div class="product-detail-page animate-in">
+    <!-- Breadcrumb & Header -->
+    <div class="page-header">
+      <div>
+        <div class="breadcrumb">
+          <a routerLink="/products" class="breadcrumb-link">Products</a>
+          <span class="material-icons-outlined breadcrumb-sep">chevron_right</span>
+          <span>{{ product.productCode }}</span>
+        </div>
+        <h1 class="page-title">{{ product.productName }}</h1>
+        @if (product.description) {
+          <p class="page-subtitle">{{ product.description }}</p>
+        }
+      </div>
+      <div class="header-actions">
+        <a [routerLink]="['/products', product.id, 'edit']" class="btn btn-primary">
+          <span class="material-icons-outlined">edit</span>
+          Edit
+        </a>
+        <a [routerLink]="['/products', product.id, 'vendors']" class="btn btn-secondary">
+          <span class="material-icons-outlined">group</span>
+          Vendors
+        </a>
+        <button class="btn btn-danger" (click)="promptDelete()">
+          <span class="material-icons-outlined">delete_outline</span>
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Top Summary Cards -->
+    <div class="summary-row">
+      <div class="summary-card">
+        <div class="summary-icon icon-price">
+          <span class="material-icons-outlined">sell</span>
+        </div>
+        <div class="summary-info">
+          <span class="summary-value">{{ formatCurrency(product.sellingPrice) }}</span>
+          <span class="summary-label">Selling Price</span>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-icon icon-stock">
+          <span class="material-icons-outlined">inventory</span>
+        </div>
+        <div class="summary-info">
+          <span class="summary-value">
+            {{ product.unitsAvailable }}
+            <small>{{ product.unitOfMeasure || 'units' }}</small>
+          </span>
+          <span class="summary-label">
+            Stock
+            <span class="badge" [class]="'badge-' + stockStatus().type">{{ stockStatus().label }}</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-icon icon-margin">
+          <span class="material-icons-outlined">trending_up</span>
+        </div>
+        <div class="summary-info">
+          <span class="summary-value">
+            @if (profitMargin() !== null) {
+              {{ profitMargin() }}%
+            } @else {
+              —
+            }
+          </span>
+          <span class="summary-label">Profit Margin</span>
+        </div>
+      </div>
+
+      @if (preferredVendor(); as vendor) {
+        <div class="summary-card">
+          <div class="summary-icon icon-vendor">
+            <span class="material-icons-outlined">star</span>
+          </div>
+          <div class="summary-info">
+            <span class="summary-value vendor-name-truncate">{{ vendor.vendorName }}</span>
+            <span class="summary-label">Preferred Vendor</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Stock Progress Bar -->
+    @if (stockPercentage() !== null) {
+      <div class="card stock-bar-card">
+        <div class="stock-bar-header">
+          <span class="stock-bar-title">Stock Level</span>
+          <span class="stock-bar-numbers">
+            {{ product.unitsAvailable }} / {{ product.maxStockLevel }}
+            <small>({{ stockPercentage() }}%)</small>
+          </span>
+        </div>
+        <div class="stock-bar-track">
+          <div
+            class="stock-bar-fill"
+            [class.fill-danger]="stockPercentage()! <= 20"
+            [class.fill-warning]="stockPercentage()! > 20 && stockPercentage()! <= 50"
+            [class.fill-ok]="stockPercentage()! > 50"
+            [style.width.%]="stockPercentage()"
+          ></div>
+        </div>
+        <div class="stock-bar-labels">
+          <span>Reorder: {{ product.reorderLevel ?? '—' }}</span>
+          <span>Max: {{ product.maxStockLevel ?? '—' }}</span>
+        </div>
+      </div>
+    }
+
+    <div class="detail-grid">
+      <!-- Pricing Section -->
+      <section class="card detail-section">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="material-icons-outlined section-icon">payments</span>
+            Pricing
+          </h2>
+        </div>
+        <div class="field-list">
+          <div class="field-row">
+            <span class="field-label">Unit Price</span>
+            <span class="field-value">{{ formatCurrency(product.unitPrice) }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Selling Price</span>
+            <span class="field-value highlight">{{ formatCurrency(product.sellingPrice) }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Purchasing Price</span>
+            <span class="field-value">{{ formatCurrency(product.purchasingPrice) }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Margin</span>
+            <span class="field-value">
+              @if (profitMargin() !== null) {
+                <span [class.text-success]="profitMargin()! > 0" [class.text-danger]="profitMargin()! < 0">
+                  {{ profitMargin()! > 0 ? '+' : '' }}{{ profitMargin() }}%
+                </span>
+              } @else {
+                —
+              }
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Inventory Section -->
+      <section class="card detail-section">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="material-icons-outlined section-icon">warehouse</span>
+            Inventory
+          </h2>
+        </div>
+        <div class="field-list">
+          <div class="field-row">
+            <span class="field-label">Units Available</span>
+            <span class="field-value">{{ product.unitsAvailable }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Unit of Measure</span>
+            <span class="field-value">{{ product.unitOfMeasure || '—' }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Barcode</span>
+            <span class="field-value mono">{{ product.barcodeValue || '—' }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Reorder Level</span>
+            <span class="field-value">{{ product.reorderLevel ?? '—' }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Max Stock Level</span>
+            <span class="field-value">{{ product.maxStockLevel ?? '—' }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Manufacturing Section -->
+      <section class="card detail-section">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="material-icons-outlined section-icon">precision_manufacturing</span>
+            Manufacturing &amp; Batch
+          </h2>
+        </div>
+        <div class="field-list">
+          <div class="field-row">
+            <span class="field-label">Manufactured By</span>
+            <span class="field-value">{{ product.manufacturedBy || '—' }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Manufactured On</span>
+            <span class="field-value">{{ formatDate(product.manufacturedOn) }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Batch Number</span>
+            <span class="field-value mono">{{ product.batchNumber || '—' }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Expiry Date</span>
+            <span class="field-value">
+              @if (product.expiryDate) {
+                {{ formatDate(product.expiryDate) }}
+                @if (isExpired()) {
+                  <span class="badge badge-danger">Expired</span>
+                } @else if (daysUntilExpiry() !== null && daysUntilExpiry()! <= 90) {
+                  <span class="badge badge-warning">{{ daysUntilExpiry() }}d left</span>
+                }
+              } @else {
+                —
+              }
+            </span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">Shelf Life</span>
+            <span class="field-value">
+              @if (product.shelfLifeDays !== null) {
+                {{ product.shelfLifeDays }} days
+              } @else {
+                —
+              }
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Vendors Section -->
+      <section class="card detail-section">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="material-icons-outlined section-icon">group</span>
+            Linked Vendors
+            <span class="count-badge">{{ linkedVendors().length }}</span>
+          </h2>
+          <a [routerLink]="['/products', product.id, 'vendors']" class="btn btn-ghost btn-sm">
+            Manage
+            <span class="material-icons-outlined" style="font-size:16px">arrow_forward</span>
+          </a>
+        </div>
+
+        @if (linkedVendors().length === 0) {
+          <div class="empty-vendors">
+            <span class="material-icons-outlined">group_off</span>
+            <p>No vendors linked</p>
+            <a [routerLink]="['/products', product.id, 'vendors']" class="btn btn-secondary btn-sm">
+              <span class="material-icons-outlined" style="font-size:16px">add</span>
+              Link Vendor
+            </a>
+          </div>
+        } @else {
+          <div class="vendor-chips">
+            @for (vendor of linkedVendors(); track vendor.id) {
+              <div class="vendor-chip" [class.is-preferred]="product.preferredVendorId === vendor.id">
+                @if (product.preferredVendorId === vendor.id) {
+                  <span class="material-icons-outlined chip-star">star</span>
+                }
+                <div class="chip-info">
+                  <span class="chip-name">{{ vendor.vendorName }}</span>
+                  <span class="chip-meta">{{ vendor.vendorCode }} · {{ primaryName(vendor) }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    </div>
+
+    <!-- Metadata Footer -->
+    <div class="meta-footer">
+      <span>
+        <span class="material-icons-outlined" style="font-size:14px">schedule</span>
+        Created {{ formatDate(product.createdAt) }}
+      </span>
+      <span>
+        <span class="material-icons-outlined" style="font-size:14px">update</span>
+        Updated {{ formatDate(product.updatedAt) }}
+      </span>
+      <span class="mono" style="opacity:0.5">ID: {{ product.id }}</span>
+    </div>
+
+    <!-- Back -->
+    <div class="back-row">
+      <a routerLink="/products" class="btn btn-secondary">
+        <span class="material-icons-outlined" style="font-size:20px">arrow_back</span>
+        Back to Products
+      </a>
+    </div>
+  </div>
+}
+
+<!-- Delete Confirmation Modal -->
+@if (showDeleteConfirm()) {
+  <div class="overlay" (click)="cancelDelete()">
+    <div class="delete-modal card" (click)="$event.stopPropagation()">
+      <div class="delete-modal-icon">
+        <span class="material-icons-outlined">warning_amber</span>
+      </div>
+      <h3>Delete Product</h3>
+      <p>Are you sure you want to delete <strong>{{ product()?.productName }}</strong>? This cannot be undone.</p>
+      <div class="delete-modal-actions">
+        <button class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()">
+          <span class="material-icons-outlined" style="font-size:18px">delete_outline</span>
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+}

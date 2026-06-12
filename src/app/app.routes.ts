@@ -17,27 +17,27 @@ export const routes: Routes = [
     title: 'Vendors',
   },
   {
+    path: 'vendors/new',
+    loadComponent: () =>
+      import('./components/vendor/vendor-form/vendor-form.component').then(
+        (m) => m.VendorFormComponent,
+      ),
+    title: 'Add Vendor',
+  },
+  {
     path: 'vendors/:id/info',
     loadComponent: () =>
       import('./components/vendor/vendor-detail/vendor-detail.component').then(
         (m) => m.VendorDetailComponent,
       ),
     title: 'Vendors Details',
-  },  
-  {
-    path: 'vendors/new',
-    loadComponent: () => 
-      import('./components/vendor/vendor-form/vendor-form.component').then(
-      (m) => m.VendorFormComponent
-    ),
-    title: 'Add Vendor',
   },
   {
     path: 'vendors/:id/edit',
-    loadComponent: () => 
+    loadComponent: () =>
       import('./components/vendor/vendor-form/vendor-form.component').then(
-      (m) => m.VendorFormComponent
-    ),
+        (m) => m.VendorFormComponent,
+      ),
     title: 'Edit Vendor',
   },
   {
@@ -52,15 +52,23 @@ export const routes: Routes = [
     path: 'products/new',
     loadComponent: () =>
       import('./components/product/product-form/product-form.component').then(
-        (m) => m.ProductFormComponent
+        (m) => m.ProductFormComponent,
       ),
     title: 'Add Product',
   },
-   {
+  {
+    path: 'products/:id',
+    loadComponent: () =>
+      import('./components/product/product-detail/product-detail.component').then(
+        (m) => m.ProductDetailComponent,
+      ),
+    title: 'Product Details',
+  },
+  {
     path: 'products/:id/edit',
     loadComponent: () =>
       import('./components/product/product-form/product-form.component').then(
-        (m) => m.ProductFormComponent
+        (m) => m.ProductFormComponent,
       ),
     title: 'Edit Product',
   },
@@ -68,7 +76,7 @@ export const routes: Routes = [
     path: 'products/:id/vendors',
     loadComponent: () =>
       import('./components/product/product-vendor/product-vendor.component').then(
-        (m) => m.ProductVendorComponent
+        (m) => m.ProductVendorComponent,
       ),
     title: 'Product Vendors',
   },

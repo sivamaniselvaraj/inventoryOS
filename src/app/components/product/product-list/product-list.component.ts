@@ -121,6 +121,12 @@ export class ProductListComponent implements OnInit {
         const container = document.createElement('div');
         container.className = 'action-cell';
 
+        const viewBtn = document.createElement('button');
+        viewBtn.className = 'btn btn-ghost btn-sm';
+        viewBtn.title = 'View';
+        viewBtn.innerHTML = '<span class="material-icons-outlined" style="font-size:18px">visibility</span>';
+        viewBtn.addEventListener('click', () => this.viewProduct(params.data!.id));
+
         const editBtn = document.createElement('button');
         editBtn.className = 'btn btn-ghost btn-sm';
         editBtn.title = 'Edit';
@@ -139,6 +145,7 @@ export class ProductListComponent implements OnInit {
         deleteBtn.innerHTML = '<span class="material-icons-outlined" style="font-size:18px;color:var(--color-danger)">delete_outline</span>';
         deleteBtn.addEventListener('click', () => this.showDeleteConfirm.set(params.data!.id));
 
+        container.appendChild(viewBtn);
         container.appendChild(editBtn);
         container.appendChild(vendorBtn);
         container.appendChild(deleteBtn);
@@ -163,6 +170,10 @@ export class ProductListComponent implements OnInit {
   onSearchChange(term: string): void {
     this.searchValue.set(term);
     this.productStore.setSearchTerm(term);
+  }
+
+  viewProduct(id: string): void {
+    this.router.navigate(['/products', id]);
   }
 
   editProduct(id: string): void {

@@ -391,33 +391,10 @@
   padding: 10px 16px 14px;
 }
 
-.card-btn {
-  flex: 1;
-  padding: 8px 0;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid;
-  transition: 0.15s;
-  font-family: inherit;
-
-  &.edit {
-    background: var(--color-accent-muted);
-    color: var(--color-accent);
-    border-color: rgba(99,102,241,0.4);
-
-    &:hover { background: var(--color-accent); color: #fff; }
-  }
-
-  &.delete {
-    background: transparent;
-    color: #ef4444;
-    border-color: rgba(239,68,68,0.3);
-
-    &:hover { background: rgba(239,68,68,0.1); }
-  }
+.card-footer .btn:last-child {
+  margin-left: auto;
 }
+
 
 /* ── Mobile detail — full screen ─────────────────────────────── */
 @media (max-width: 768px) {
@@ -427,6 +404,22 @@
     position: absolute;
     inset: 0;
     z-index: 10;
+  }
+   .stats-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .stat-card {
+    padding: var(--space-4);
+  }
+
+  .mobile-card-body {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-toolbar .search-box {
+    max-width: 100%;
   }
 }
 
