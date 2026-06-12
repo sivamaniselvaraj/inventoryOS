@@ -113,7 +113,8 @@ export class ProductListComponent implements OnInit {
     {
       headerName: 'Actions',
       field: 'id',
-      width: 150,
+      width: 200,
+      minWidth: 200,
       sortable: false,
       filter: false,
       resizable: false,

@@ -1,4 +1,3 @@
-export { SidebarComponent } from "./sidebar/sidebar.component";
 export { DashboardComponent } from "./dashboard/dashboard.component";
 export { LayoutComponent } from "./layout/layout.component";
 

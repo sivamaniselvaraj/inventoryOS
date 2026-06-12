@@ -1,0 +1,116 @@
+<div class="page-header">
+    <div>
+      <h1 class="page-title">Order</h1>
+    </div>
+</div>
+<!-- Search bar -->
+<app-product-search (productSelected)="onProductSelected($event)" />
+
+<!-- Editing indicator -->
+@if (store.editingId()) {
+  <div class="editing-banner">
+    ✏️ Editing {{ store.editingId() }}
+  </div>
+}
+
+<!-- Empty state -->
+@if (!store.hasItems()) {
+  <div class="empty">
+    <div class="empty-icon">📦</div>
+    <p class="empty-text">Search and add products to start an order</p>
+  </div>
+}
+
+<!-- Order items grid -->
+@if (store.hasItems()) {
+  <div class="grid-wrap">
+    <!-- Column headers -->
+    <div class="grid-header">
+      <span class="col col-product">Product</span>
+      <span class="col col-unit">Unit ₹</span>
+      <span class="col col-sell">Sell ₹</span>
+      <span class="col col-qty">Qty</span>
+      <span class="col col-total">Total</span>
+      <span class="col col-action"></span>
+    </div>
+
+    <!-- Scrollable rows -->
+    <div class="grid-body">
+      @for (item of store.currentItems(); track item.code; let idx = $index) {
+        <div class="grid-row" [class.row-alt]="idx % 2 === 1">
+          <!-- Product -->
+          <div class="col col-product">
+            <span class="row-code">{{ item.code }}</span>
+            <span class="row-name">{{ item.name }}</span>
+          </div>
+
+          <!-- Unit Price -->
+          <span class="col col-unit col-num">
+            {{ item.unitPrice | number }}
+          </span>
+
+          <!-- Selling Price -->
+          <div class="col col-sell">
+            <input
+              type="number"
+              class="cell-input"
+              [ngModel]="item.sellingPrice"
+              (ngModelChange)="store.updateItem(item.code, 'sellingPrice', $event)"
+            />
+          </div>
+
+          <!-- Quantity -->
+          <div class="col col-qty">
+            <div class="qty-inline">
+              <button class="qty-btn" (click)="store.updateItem(item.code, 'quantity', Math.max(1, item.quantity - 1))">−</button>
+              <input
+                type="number"
+                class="cell-input qty-cell"
+                min="1"
+                [ngModel]="item.quantity"
+                (ngModelChange)="store.updateItem(item.code, 'quantity', Math.max(1, $event))"
+              />
+              <button class="qty-btn" (click)="store.updateItem(item.code, 'quantity', item.quantity + 1)">+</button>
+            </div>
+          </div>
+
+          <!-- Line Total -->
+          <span class="col col-total col-num highlight">
+            ₹{{ item.totalByItem | number : '1.2-2' }}
+          </span>
+
+          <!-- Remove -->
+          <div class="col col-action">
+            <button class="remove-btn" (click)="store.removeItem(item.code)">
+              <span class="material-icons-outlined">close</span>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Sticky footer: Summary + Actions -->
+  <div class="sticky-footer">
+    <div class="footer-totals">
+      <div class="footer-row">
+        <span class="footer-label">Subtotal</span>
+        <span class="footer-value">₹{{ store.subtotal() | number : '1.2-2' }}</span>
+      </div>
+      <div class="footer-row">
+        <span class="footer-label">GST ({{ store.gstRate * 100 }}%)</span>
+        <span class="footer-value">₹{{ store.gstAmount() | number : '1.2-2' }}</span>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-row footer-grand">
+        <span class="footer-label">Order Total</span>
+        <span class="footer-value">₹{{ store.orderTotal() | number : '1.2-2' }}</span>
+      </div>
+    </div>
+
+    <div class="footer-actions">
+      <button class="btn-draft" (click)="onSaveDraft()">Save Draft</button>
+      <button class="btn-submit" (click)="onSubmit()">Order</button>
+    </div>
+  </div>
+}

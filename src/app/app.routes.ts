@@ -8,6 +8,7 @@ export const routes: Routes = [
       import('./components/dashboard/dashboard.component').then((m) => m.DashboardComponent),
     title: 'Dashboard',
   },
+  /* Vendors Router */
   {
     path: 'vendors',
     loadComponent: () =>
@@ -40,6 +41,7 @@ export const routes: Routes = [
       ),
     title: 'Edit Vendor',
   },
+  /* Products Router */
   {
     path: 'products',
     loadComponent: () =>
@@ -79,6 +81,15 @@ export const routes: Routes = [
         (m) => m.ProductVendorComponent,
       ),
     title: 'Product Vendors',
+  },
+  /* Order Router */
+  {
+    path: 'orders',
+    loadComponent: () =>
+      import('./components/order/order-create/order-create.component').then(
+        (m) => m.OrderCreateComponent,
+      ),
+    title: 'Orders',
   },
   { path: '**', redirectTo: 'dashboard' },
 ];

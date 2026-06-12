@@ -106,19 +106,19 @@ export class VendorListComponent implements OnInit {
       type: 'numericColumn',
       valueFormatter: (p) => (p.value ? `₹${(p.value as number).toLocaleString('en-IN')}` : '—'),
     },
-    {
-      field: 'rating',
-      headerName: 'Rating',
-      flex: 0.8,
-      minWidth: 90,
-      type: 'numericColumn',
-      cellRenderer: (p: any) =>
-        `<span>${Number(p.value).toFixed(1)}</span>`,
-    },
+    // {
+    //   field: 'rating',
+    //   headerName: 'Rating',
+    //   flex: 0.8,
+    //   minWidth: 90,
+    //   type: 'numericColumn',
+    //   cellRenderer: (p: any) =>
+    //     `<span>${Number(p.value).toFixed(1)}</span>`,
+    // },
     {
       headerName: 'Actions',
       flex: 1,
-      minWidth: 130,
+      minWidth: 150,
       sortable: false,
       filter: false,
 

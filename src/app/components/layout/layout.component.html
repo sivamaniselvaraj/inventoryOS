@@ -63,6 +63,19 @@
         <span class="nav-label">Add Product</span>
       }
     </a>
+
+    <a
+      routerLink="/orders"
+      routerLinkActive="active"
+      class="nav-item"
+      (click)="closeSidebar()"
+      [title]="sidebarCollapsed() ? 'Orders' : ''"
+    >
+      <span class="material-icons-outlined">takeout_dining</span>
+      @if (!sidebarCollapsed() || isMobile()) {
+        <span class="nav-label">Orders</span>
+      }
+    </a>
   </nav>
 
   <!-- Low Stock Alert -->

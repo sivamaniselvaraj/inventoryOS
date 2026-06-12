@@ -159,7 +159,9 @@ export class ProductStore {
   setSearchTerm(term: string): void {
     this._searchTerm.set(term);
   }
-
+  getProducts(): Product[] | undefined {
+    return this._products();
+  }
   getProductById(id: string): Product | undefined {
     return this._products().find((p) => p.id === id);
   }
