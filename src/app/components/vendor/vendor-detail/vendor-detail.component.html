@@ -1,0 +1,135 @@
+@if (vendor) {
+  <div class="detail-page animate-in">
+<a routerLink="/vendors" class="btn btn-secondary btn-sm"><span class="material-icons-outlined" style="font-size:20px">arrow_back</span>Back</a>
+    <!-- Hero header -->
+    <header class="detail-hero">
+      <div class="hero-avatar">{{ initials }}</div>
+      <div class="hero-info">
+        <h2 class="hero-name">{{ vendor.vendorName }}</h2>
+        <div class="hero-meta">
+          <span class="badge" [class]="statusBadgeClass">{{ vendor.status }}</span>
+          <span class="chip chip-preferred">{{ vendor.category }}</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Quick stats strip -->
+    <div class="stat-strip">
+      <div class="stat-item">
+        <span class="stat-value">{{ vendor.contractValue | currency:'INR':'symbol-narrow':'1.0-0' }}</span>
+        <span class="stat-label">Contract Value</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value stat-rating">★ {{ vendor.rating.toFixed(1) }}</span>
+        <span class="stat-label">Rating</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value">{{ vendor.contacts.length }}</span>
+        <span class="stat-label">Contacts</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value">{{ vendor.joinedDate | date:'MMM yyyy' }}</span>
+        <span class="stat-label">Member Since</span>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="detail-actions">
+      <button class="btn btn-primary" (click)="onEdit()">Edit Vendor</button>
+      <button class="btn btn-danger" (click)="onDelete()">Delete</button>
+    </div>
+
+    <!-- Info cards -->
+    <div class="detail-cards">
+
+      <!-- Contacts -->
+      <div class="card info-card">
+        <h3 class="info-card-title">Contacts ({{ vendor.contacts.length }})</h3>
+        <div class="contacts-list">
+          @for (contact of vendor.contacts; track contact.id) {
+            <div class="contact-card" [class.primary]="contact.isPrimary">
+              <div class="contact-header">
+                <div class="contact-avatar">{{ contactInitials(contact.name) }}</div>
+                <div class="contact-identity">
+                  <span class="contact-name">
+                    {{ contact.name }}
+                    @if (contact.isPrimary) {
+                      <span class="primary-badge">Primary</span>
+                    }
+                  </span>
+                  <span class="contact-role">{{ contact.role }}</span>
+                </div>
+              </div>
+              <div class="contact-details">
+                <div class="contact-row">
+                  <span class="contact-icon">✉</span>
+                  <a class="contact-link" [href]="'mailto:' + contact.email">{{ contact.email }}</a>
+                </div>
+                @if (contact.phone) {
+                  <div class="contact-row">
+                    <span class="contact-icon">☎</span>
+                    <a class="contact-link" [href]="'tel:' + contact.phone">{{ contact.phone }}</a>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="card info-card">
+        <h3 class="info-card-title">Location</h3>
+        <div class="info-rows">
+          <div class="info-row">
+            <span class="info-label">Address</span>
+            <span class="info-value">{{ vendor.address || '—' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">City</span>
+            <span class="info-value">{{ vendor.city }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Country</span>
+            <span class="info-value">{{ vendor.country }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card info-card">
+        <h3 class="info-card-title">Business</h3>
+        <div class="info-rows">
+           @if (vendor.website) {
+            <div class="info-row">
+              <span class="info-label">Website</span>
+              <a class="info-value link" [href]="vendor.website" target="_blank" rel="noopener">{{ vendor.website }}</a>
+            </div>
+          }
+          <div class="info-row">
+            <span class="info-label">Tax ID</span>
+            <span class="info-value mono">{{ vendor.taxId || '—' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Last Activity</span>
+            <span class="info-value">{{ vendor.lastActivity | date:'mediumDate' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Joined</span>
+            <span class="info-value">{{ vendor.joinedDate | date:'mediumDate' }}</span>
+          </div>
+        </div>
+      </div>
+
+      @if (vendor.notes) {
+        <div class="card info-card">
+          <h3 class="info-card-title">Notes</h3>
+          <p class="notes-text">{{ vendor.notes }}</p>
+        </div>
+      }
+
+    </div>
+  </div>
+}

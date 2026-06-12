@@ -1,0 +1,207 @@
+<div class="vendor-list-page animate-in">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Vendors</h1>
+      <p class="page-subtitle">
+        {{store.stats().total}} total · {{ store.stats().active }} active
+      </p>
+    </div>
+    <a routerLink="/vendors/new" class="btn btn-primary">
+      <span class="material-icons-outlined">add</span>
+      Add vendor
+    </a>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="material-icons-outlined stat-icon">inventory</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ store.stats().total }}</span>
+        <span class="stat-label">Total Vendors</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="material-icons-outlined stat-icon icon-value">account_balance_wallet</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ store.stats().active }}</span>
+        <span class="stat-label">Active</span>
+      </div>
+    </div>
+  </div>
+
+
+ <!-- Search & Grid -->
+  <div class="card grid-card">
+    <div class="grid-toolbar">
+      <div class="search-box">
+        <span class="material-icons-outlined">search</span>
+        <input class="search-input" type="text" placeholder="Search vendors..."
+        [ngModel]="store.filter().search"
+        (ngModelChange)="store.setFilter({ search: $event })" />
+      </div>
+
+      <select class="filter-select" [ngModel]="store.filter().status" (ngModelChange)="store.setFilter({ status: $event })">
+      <option value="">All Statuses</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+      <option value="pending">Pending</option>
+      <option value="suspended">Suspended</option>
+    </select>
+    <select class="filter-select" [ngModel]="store.filter().category" (ngModelChange)="store.setFilter({ category: $event })">
+      <option value="">All Categories</option>
+      <option value="technology">Technology</option>
+      <option value="logistics">Logistics</option>
+      <option value="manufacturing">Manufacturing</option>
+      <option value="services">Services</option>
+      <option value="consulting">Consulting</option>
+      <option value="supplies">Supplies</option>
+    </select>
+    </div>
+  
+
+<div class="vendor-list-page">
+  @if (store.filteredVendors().length === 0) {
+      <div class="empty-state">
+        <span class="material-icons-outlined">search_off</span>
+        @if (store.filter().search) {
+          <p>No Vendors match "{{ store.filter().search }}"</p>
+        } @else {
+          <p>No Vendors yet. Add your first vendor to get started.</p>
+          <a routerLink="/vendors/new" class="btn btn-primary">
+            <span class="material-icons-outlined">add</span>
+            Add Product
+          </a>
+        }
+      </div>
+    } @else {
+      <!-- Mobile Card List -->
+      @if (isMobileView()) {
+
+        @for (vendor of store.filteredVendors(); track vendor.id) {
+          <div class="vendor-card" (click)="onCardClick(vendor)">
+
+            @if (store.filteredVendors().length === 0) {
+              <div class="card-empty">
+                <span class="card-empty-icon">◉</span>
+                <p>No vendors match your filters.</p>
+              </div>
+            }
+
+            <!-- Card header -->
+            <div class="card-header">
+              <div class="card-avatar">{{ initials(vendor.vendorName) }}</div>
+              <div class="card-title">
+                <span class="card-name">{{ vendor.vendorName }}</span>
+                <span class="card-sub">{{ primaryName(vendor) }} · {{ vendor.city }}</span>
+              </div>
+              <span class="card-status" [class]="vendor.status">{{ vendor.status }}</span>
+            </div>
+
+            <!-- Card body -->
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-label">Primary</span>
+                <span class="card-val">{{ primaryEmail(vendor) }}</span>
+              </div>
+              <div class="card-row">
+                <span class="card-label">Contacts</span>
+                <span class="card-badge">{{ contactCount(vendor) }}</span>
+              </div>
+              <div class="card-row">
+                <span class="card-label">Category</span>
+                <span class="card-category">{{ vendor.category }}</span>
+              </div>
+              <div class="card-row">
+                <span class="card-label">Contract</span>
+                <span class="card-val card-contract">
+                  {{ vendor.contractValue | currency:'INR':'symbol-narrow':'1.0-0' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Card footer -->
+            <div class="card-footer">
+              <button class="card-btn view" (click)="onCardView($event, vendor)">View</button>
+              <button class="card-btn edit"
+                (click)="onCardEdit($event, vendor)">Edit</button>
+              <button class="card-btn delete"
+                (click)="onCardDelete($event, vendor)">Delete</button>
+            </div>
+
+          </div>
+        }
+      
+      } @else {
+        <!-- Desktop AG-Grid -->
+        @defer (on viewport; prefetch on idle) {
+        <ag-grid-angular
+          class="ag-theme-custom"
+          style="width: 100%; height: 520px;"
+          [rowData]="store.filteredVendors()"
+          [columnDefs]="colDefs"
+          [defaultColDef]="defaultColDef"
+          [animateRows]="true"
+          [pagination]="true"
+          [paginationPageSize]="paginationPageSize"
+          [paginationPageSizeSelector]="paginationPageSizeSelector"
+          (gridReady)="onGridReady($event)"
+          (rowClicked)="onRowClicked($event)"
+        />
+      } @placeholder {
+        <div class="grid-skeleton">
+          <div class="skeleton-header"></div>
+          @for (row of skeletonRows; track row) {
+            <div class="skeleton-row"></div>
+          }
+        </div>
+      } @loading (minimum 200ms) {
+        <div class="grid-loading">
+          <span class="loading-spinner"></span>
+          <span>Loading grid…</span>
+        </div>
+      }
+      }
+    }
+
+  <!-- <div class="content-split" [class.with-detail]="store.selectedVendor()">
+
+
+    @if (store.selectedVendor()) {
+      <div class="detail-wrap">
+        <div class="detail-close-bar">
+          <button (click)="store.selectVendor(null)">✕ Close</button>
+        </div>
+        @defer (on immediate) {
+          <app-vendor-detail [vendor]="store.selectedVendor()!" />
+        } @placeholder {
+          <div class="detail-placeholder">Loading detail…</div>
+        }
+      </div>
+    }
+
+  </div> -->
+</div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+@if (showDeleteConfirm()) {
+  <div class="overlay" (click)="cancelDelete()">
+    <div class="delete-modal card" (click)="$event.stopPropagation()">
+      <div class="delete-modal-icon">
+        <span class="material-icons-outlined">warning_amber</span>
+      </div>
+      <h3>Delete Vendor</h3>
+      <p>Are you sure you want to delete <strong>{{ getDeleteVendorName() }}</strong>? This action cannot be undone.</p>
+      <div class="delete-modal-actions">
+        <button class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()">
+          <span class="material-icons-outlined" style="font-size:18px">delete_outline</span>
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+}
+</div>

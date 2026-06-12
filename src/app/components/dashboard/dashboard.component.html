@@ -1,0 +1,81 @@
+<div class="dashboard">
+  <div class="dash-header">
+    <h1>Dashboard</h1>
+    <button class="add-btn" (click)="store.openAddForm()">+ Add Vendor</button>
+  </div>
+
+  <!-- KPI cards — always rendered immediately -->
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-icon total">◉</div><div class="kpi-info"><span class="kpi-num">{{ store.stats().total }}</span><span class="kpi-label">Total Vendors</span></div></div>
+    <div class="kpi-card"><div class="kpi-icon active">●</div><div class="kpi-info"><span class="kpi-num">{{ store.stats().active }}</span><span class="kpi-label">Active Vendors</span></div></div>
+    <div class="kpi-card"><div class="kpi-icon pending">◎</div><div class="kpi-info"><span class="kpi-num">{{ store.stats().pending }}</span><span class="kpi-label">Pending Review</span></div></div>
+    <div class="kpi-card"><div class="kpi-icon value">₹</div><div class="kpi-info"><span class="kpi-num">{{  formatter.format(store.stats().totalContractValue) }}</span><span class="kpi-label">Total Contract Value</span></div></div>
+    <!-- <div class="kpi-card"><div class="kpi-icon rating">★</div><div class="kpi-info"><span class="kpi-num">{{ store.stats().avgRating.toFixed(1) }}</span><span class="kpi-label">Avg Rating</span></div></div> -->
+    <div class="kpi-card"><div class="kpi-icon suspended">⊗</div><div class="kpi-info"><span class="kpi-num">{{ store.stats().suspended }}</span><span class="kpi-label">Suspended</span></div></div>
+  </div>
+
+  <!-- Charts + recent list — deferred until scrolled into view -->
+  @defer (on viewport; prefetch on idle) {
+    <div class="dash-split">
+
+      <div class="dash-card">
+        <h3>Status Distribution</h3>
+        <div class="status-bars">
+          @for (item of statusItems; track item.label) {
+            <div class="status-bar-item">
+              <div class="bar-label">
+                <span class="dot" [style.background]="item.color"></span>
+                <span>{{ item.label }}</span>
+                <span class="bar-count">{{ item.count }}</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="barWidth(item.count)" [style.background]="item.color"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <h3>By Category</h3>
+        <div class="category-list">
+          @for (cat of categoryBreakdown; track cat.name) {
+            <div class="cat-row">
+              <span class="cat-name">{{ cat.name }}</span>
+              <div class="cat-bar-track"><div class="cat-bar-fill" [style.width.%]="catBarWidth(cat.count)"></div></div>
+              <span class="cat-count">{{ cat.count }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="dash-card wide">
+        <div class="card-header-row">
+          <h3>Recent Vendors</h3>
+          <a routerLink="/vendors" class="view-all">View all →</a>
+        </div>
+        <div class="recent-list">
+          @for (v of recentVendors; track v.id) {
+            <div class="recent-row">
+              <div class="recent-avatar">{{ initials(v.vendorName) }}</div>
+              <div class="recent-info">
+                <span class="recent-name">{{ v.vendorName }}</span>
+                <span class="recent-sub">{{ v.city }} · {{ v.category }}</span>
+              </div>
+              <span class="status-dot" [class]="v.status">{{ v.status }}</span>
+              <span class="recent-value">{{ v.contractValue | currency:'INR':'symbol-narrow':'1.0-0' }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  } @placeholder (minimum 100ms) {
+    <div class="charts-skeleton">
+      <div class="chart-skeleton-card"></div>
+      <div class="chart-skeleton-card"></div>
+      <div class="chart-skeleton-card wide"></div>
+    </div>
+  }
+
+</div>

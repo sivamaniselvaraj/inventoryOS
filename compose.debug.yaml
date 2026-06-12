@@ -1,0 +1,6 @@
+services:
+  inventorymanagement:
+    image: inventorymanagement
+    build:
+      context: .
+      dockerfile: ./Dockerfile

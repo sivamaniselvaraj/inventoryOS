@@ -1,0 +1,214 @@
+<div class="overlay" (click)="onBackdropClick($event)">
+  <div class="form-sheet animate-in" role="dialog" aria-modal="true" aria-label="Vendor form">
+
+    <!-- Sticky header -->
+    <header class="sheet-header">
+      <button type="button" class="btn btn-ghost sheet-back" routerLink="/vendors" aria-label="Close">
+        ←
+      </button>
+      <div class="sheet-title-wrap">
+        <h2 class="sheet-title">{{ isEditMode() ? 'Edit Vendor' : 'New Vendor' }}</h2>
+        <p class="sheet-subtitle">{{ isEditMode() ? form.get('vendorName')?.value : 'Fill in the vendor details' }}</p>
+      </div>
+      <button type="button" class="btn btn-ghost sheet-close" routerLink="/vendors" aria-label="Close">✕</button>
+    </header>
+
+    <!-- Scrollable form body -->
+    <form [formGroup]="form" class="sheet-body" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- Basic Information -->
+      <section class="form-section">
+        <h3 class="form-section-title">Basic Information</h3>
+
+        <div class="form-group">
+          <label class="form-label">Company Name <span class="required">*</span></label>
+          <input type="text" class="form-control" formControlName="vendorName" name="name"
+            placeholder="e.g. TechNova Solutions"
+          />
+          @if (isFieldInvalid('vendorName')) {
+            <span class="form-error">Company name is required</span>
+          }
+        </div>   
+        <div class="form-group">
+          <label class="form-label">Website</label>
+          <input type="url" class="form-control" formControlName="website" name="website"
+            placeholder="https://vendor.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tax ID / GSTIN</label>
+          <input type="text" class="form-control" formControlName="taxId" name="taxId"
+            placeholder="GSTIN29ABCDE1234F1Z5" />
+        </div>
+      </section>
+
+       <!-- Contacts -->
+      <section class="form-section">
+         <h3 class="form-section-title">Contacts ({{ contacts.length }})</h3>
+
+        <p class="card-desc">Add one or more contact people for this vendor. At least one is required.</p>
+
+        <div class="contacts-editor" formArrayName="contacts">
+          @for (contactGroup of contacts.controls; track contactGroup.get('id')?.value; let i = $index) {
+
+               <div class="contact-entry"
+              [formGroupName]="i"
+              [class.is-primary]="contactGroup.get('isPrimary')?.value"
+              [class.has-error]="contactGroup.invalid && submitted">
+ 
+              <!-- Contact header bar -->
+              <div class="contact-entry-header">
+                <span class="contact-number">#{{ i + 1 }}</span>
+ 
+                @if (contactGroup.get('isPrimary')?.value) {
+                  <span class="primary-tag">Primary Contact</span>
+                } @else {
+                  <button type="button" class="make-primary-btn" (click)="setPrimary(i)">Make Primary</button>
+                }
+ 
+                <button type="button" class="remove-contact-btn"
+                  [disabled]="contacts.length <= 1"
+                  (click)="removeContact(i)" aria-label="Remove contact">✕</button>
+              </div>
+ 
+              <!-- Contact fields -->
+              <div class="contact-fields">
+                <div class="form-group">
+                  <label class="form-label">Name <span class="required">*</span></label>
+                  <input type="text" class="form-control" formControlName="name"
+                    placeholder="Full name"
+                    [class.invalid]="isInvalid(contactGroup.get('name'))" />
+                  @if (isInvalid(contactGroup.get('name'))) {
+                    <span class="form-error">Contact name is required</span>
+                  }
+                </div>
+ 
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label class="form-label">Email <span class="required">*</span></label>
+                    <input type="email" class="form-control" formControlName="email"
+                      placeholder="email@vendor.com"
+                      [class.invalid]="isInvalid(contactGroup.get('email'))" />
+                    @if (isInvalid(contactGroup.get('email'))) {
+                      @if (contactGroup.get('email')?.hasError('required')) {
+                        <span class="form-error">Email is required</span>
+                      } @else if (contactGroup.get('email')?.hasError('email')) {
+                        <span class="form-error">Enter a valid email</span>
+                      }
+                    }
+                  </div>
+ 
+                  <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="tel" class="form-control" formControlName="phone"
+                      placeholder="+91 98765 43210" />
+                  </div>
+                </div>
+ 
+                <div class="form-group">
+                  <label class="form-label">Role</label>
+                  <select class="form-control" formControlName="role">
+                    @for (role of roleOptions; track role.value) {
+                      <option [value]="role.value">{{ role.label }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+ 
+            </div>
+          }
+ 
+          <button type="button" class="add-contact-btn" (click)="addContact()">
+            + Add Another Contact
+          </button>
+        </div>
+      </section>
+
+      <!-- Location -->
+      <section class="form-section">
+        <h3 class="form-section-title">Location</h3>
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <input type="text" class="form-control" formControlName="address" name="address"
+            placeholder="Street address" />
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <input type="text" class="form-control" formControlName="city" name="city" placeholder="City" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Country</label>
+            <input type="text" class="form-control" formControlName="country" name="country" placeholder="Country" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Business Details -->
+      <section class="form-section">
+        <h3 class="form-section-title">Business Details</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Category <span class="required">*</span></label>
+            <select class="form-control" formControlName="category" name="category">
+              <option value="">Select category</option>
+              <option value="technology">Technology</option>
+              <option value="logistics">Logistics</option>
+              <option value="manufacturing">Manufacturing</option>
+              <option value="services">Services</option>
+              <option value="consulting">Consulting</option>
+              <option value="supplies">Supplies</option>
+            </select>
+            @if (isFieldInvalid('category')) {
+              <span class="form-error">Required</span>
+            }
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-control" formControlName="status" name="status">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="pending">Pending</option>
+              <option value="suspended">Suspended</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contract Value (₹)</label>
+            <input type="number" class="form-control" inputmode="numeric"
+              formControlName="contractValue" name="contractValue" min="0" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rating (1–5)</label>
+            <input type="number" class="form-control" inputmode="decimal"
+              formControlName="rating" name="rating" min="1" max="5" step="0.1" placeholder="4.5" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Joined Date</label>
+            <input type="date" class="form-control" formControlName="joinedDate" name="joinedDate" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Activity</label>
+            <input type="date" class="form-control" formControlName="lastActivity" name="lastActivity" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Notes -->
+      <section class="form-section">
+        <h3 class="form-section-title">Notes</h3>
+        <div class="form-group">
+          <textarea class="form-control" formControlName="notes" name="notes" rows="3"
+            placeholder="Internal notes about this vendor..."></textarea>
+        </div>
+      </section>
+
+      <!-- Sticky footer actions -->
+      <footer class="sheet-footer">
+         <a routerLink="/vendors" class="btn btn-secondary btn-lg">Cancel</a>
+        <button type="submit" class="btn btn-primary btn-lg-mobile">
+          {{ isEditMode() ? 'Save Changes' : 'Add Vendor' }}
+        </button>
+      </footer>
+
+    </form>
+  </div>
+</div>

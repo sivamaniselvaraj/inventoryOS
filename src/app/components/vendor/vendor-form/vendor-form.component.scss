@@ -1,0 +1,150 @@
+/* ============================================================
+   Vendor Form — light theme, mobile-first sheet
+   Desktop: centered modal · Mobile: full-screen sheet
+   ============================================================ */
+
+/* Sheet container — modal on desktop */
+.form-sheet {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 640px;
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.sheet-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+  flex-shrink: 0;
+}
+
+.sheet-back {
+  display: none;           /* shown on mobile only */
+  font-size: 20px;
+  min-width: 40px;
+}
+
+.sheet-title-wrap { flex: 1; min-width: 0; }
+
+.sheet-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.sheet-subtitle {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sheet-close {
+  font-size: 16px;
+  min-width: 40px;
+}
+
+/* ── Scrollable body ────────────────────────────────────────── */
+.sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Form sections ──────────────────────────────────────────── */
+.form-section {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+
+  &:last-of-type { border-bottom: none; }
+}
+
+.form-section-title {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-accent);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+/* Invalid state (template-driven, manual flag) */
+.form-control.invalid {
+  border-color: var(--color-danger);
+
+  &:focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12); }
+}
+
+/* ── Sticky footer ──────────────────────────────────────────── */
+.sheet-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-bg-card);
+  border-top: 1px solid var(--color-border);
+  margin-top: auto;
+
+  /* Safe area for devices with home indicator */
+  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── Mobile: full-screen sheet ──────────────────────────────── */
+@media (max-width: 640px) {
+  /* Overlay loses its padding so the sheet hits the edges */
+  .overlay {
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+
+  .form-sheet {
+    max-width: none;
+    max-height: none;
+    height: 100dvh;
+    border-radius: 0;
+  }
+
+  .sheet-back  { display: inline-flex; }
+  .sheet-close { display: none; }
+
+  .sheet-header {
+    padding: var(--space-3) var(--space-4);
+    /* Safe area for notched devices */
+    padding-top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
+  }
+
+  .form-section { padding: var(--space-4); }
+
+  /* Single column on phones — bigger touch targets */
+  .form-grid { grid-template-columns: 1fr; }
+
+  .form-control { min-height: 48px; font-size: 16px; } /* 16px prevents iOS zoom */
+
+  .sheet-footer {
+    .btn { flex: 1; min-height: 48px; }
+  }
+}

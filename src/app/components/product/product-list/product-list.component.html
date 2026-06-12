@@ -1,0 +1,152 @@
+<div class="product-list-page animate-in">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Products</h1>
+      <p class="page-subtitle">
+        {{ productStore.totalProducts() }} total · {{ lowStockProducts().length }} low stock
+      </p>
+    </div>
+    <a routerLink="/products/new" class="btn btn-primary">
+      <span class="material-icons-outlined">add</span>
+      Add Product
+    </a>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="material-icons-outlined stat-icon">inventory</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ productStore.totalProducts() }}</span>
+        <span class="stat-label">Total Products</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="material-icons-outlined stat-icon icon-value">account_balance_wallet</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ formatCurrency(totalInventoryValue()) }}</span>
+        <span class="stat-label">Inventory Value</span>
+      </div>
+    </div>
+    <div class="stat-card" [class.stat-alert]="lowStockProducts().length > 0">
+      <span class="material-icons-outlined stat-icon icon-warning">warning_amber</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ lowStockProducts().length }}</span>
+        <span class="stat-label">Low Stock Alerts</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Grid -->
+  <div class="card grid-card">
+    <div class="grid-toolbar">
+      <div class="search-box">
+        <span class="material-icons-outlined">search</span>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search by code, name, barcode, batch..."
+          [ngModel]="searchValue()"
+          (ngModelChange)="onSearchChange($event)"
+        />
+      </div>
+    </div>
+
+    @if (productStore.filteredProducts().length === 0) {
+      <div class="empty-state">
+        <span class="material-icons-outlined">search_off</span>
+        @if (searchValue()) {
+          <p>No products match "{{ searchValue() }}"</p>
+        } @else {
+          <p>No products yet. Add your first product to get started.</p>
+          <a routerLink="/products/new" class="btn btn-primary">
+            <span class="material-icons-outlined">add</span>
+            Add Product
+          </a>
+        }
+      </div>
+    } @else {
+      <!-- Mobile Card List -->
+      @if (isMobileView()) {
+        <div class="mobile-product-list">
+          @for (product of productStore.filteredProducts(); track product.id) {
+            <div class="mobile-product-card">
+              <div class="mobile-card-header">
+                <div>
+                  <span class="mobile-code">{{ product.productCode }}</span>
+                  <h3 class="mobile-name">{{ product.productName }}</h3>
+                </div>
+                @if (product.reorderLevel && product.unitsAvailable <= product.reorderLevel) {
+                  <span class="badge badge-danger">Low</span>
+                }
+              </div>
+              <div class="mobile-card-body">
+                <div class="mobile-field">
+                  <span class="mobile-label">Selling Price</span>
+                  <span class="mobile-value">₹{{ product.sellingPrice.toLocaleString('en-IN') }}</span>
+                </div>
+                <div class="mobile-field">
+                  <span class="mobile-label">Stock</span>
+                  <span class="mobile-value">{{ product.unitsAvailable }} {{ product.unitOfMeasure }}</span>
+                </div>
+                <div class="mobile-field">
+                  <span class="mobile-label">Batch</span>
+                  <span class="mobile-value cell-code">{{ product.batchNumber || '—' }}</span>
+                </div>
+              </div>
+              <div class="mobile-card-actions">
+                <button class="btn btn-secondary btn-sm" (click)="editProduct(product.id)">
+                  <span class="material-icons-outlined" style="font-size:16px">edit</span> Edit
+                </button>
+                <button class="btn btn-secondary btn-sm" (click)="manageVendors(product.id)">
+                  <span class="material-icons-outlined" style="font-size:16px">group</span> Vendors
+                </button>
+                <button class="btn btn-danger btn-sm" (click)="showDeleteConfirm.set(product.id)">
+                  <span class="material-icons-outlined" style="font-size:16px">delete_outline</span>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- Desktop AG-Grid -->
+        <ag-grid-angular
+          class="ag-theme-custom"
+          style="width: 100%; height: 520px;"
+          [rowData]="productStore.filteredProducts()"
+          [columnDefs]="columnDefs"
+          [defaultColDef]="defaultColDef"
+          [autoSizeStrategy]="autoSizeStrategy"
+          [pagination]="true"
+          [paginationPageSize]="paginationPageSize"
+          [paginationPageSizeSelector]="paginationPageSizeSelector"
+          [animateRows]="true"
+          [suppressCellFocus]="true"
+          [rowSelection]="'single'"
+          (gridReady)="onGridReady($event)"
+        />
+      }
+    }
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+@if (showDeleteConfirm()) {
+  <div class="overlay" (click)="cancelDelete()">
+    <div class="delete-modal card" (click)="$event.stopPropagation()">
+      <div class="delete-modal-icon">
+        <span class="material-icons-outlined">warning_amber</span>
+      </div>
+      <h3>Delete Product</h3>
+      <p>Are you sure you want to delete <strong>{{ getDeleteProductName() }}</strong>? This action cannot be undone.</p>
+      <div class="delete-modal-actions">
+        <button class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()">
+          <span class="material-icons-outlined" style="font-size:18px">delete_outline</span>
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+}

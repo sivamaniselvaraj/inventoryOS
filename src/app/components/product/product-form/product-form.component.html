@@ -1,0 +1,324 @@
+<div class="overlay" (click)="onBackdropClick($event)">
+<div class="form-sheet animate-in" role="dialog" aria-modal="true" aria-label="Product form">
+ 
+ <!-- Sticky header -->
+    <header class="sheet-header">
+      <button type="button" class="btn btn-ghost sheet-back" routerLink="/products" aria-label="Close">
+        ←
+      </button>
+      <div class="sheet-title-wrap">
+        <h2 class="sheet-title">{{ pageTitle() }}</h2>
+        <p class="sheet-subtitle">{{ isEditMode() ? form.get("productName") : 'Fill in the product details' }}</p>
+      </div>
+      <button type="button" class="btn btn-ghost sheet-close" routerLink="/products" aria-label="Close">✕</button>
+    </header>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="sheet-body">
+    <!-- Basic Information -->
+    <section class="form-section">
+      <h3 class="form-section-title">Basic Information</h3>
+
+      <div class="form-grid">
+        <!-- Product Code -->
+        <div class="form-group">
+          <label class="form-label" for="productCode">
+            Product Code <span class="required">*</span>
+          </label>
+          <input
+            id="productCode"
+            type="text"
+            class="form-control"
+            formControlName="productCode"
+            placeholder="e.g. PRD-1006"
+          />
+          @if (isFieldInvalid('productCode')) {
+            <span class="form-error">
+              <span class="material-icons-outlined" style="font-size:14px">error</span>
+              {{ getFieldError('productCode') }}
+            </span>
+          }
+        </div>
+
+        <!-- Product Name -->
+        <div class="form-group span-2">
+          <label class="form-label" for="productName">
+            Product Name <span class="required">*</span>
+          </label>
+          <input
+            id="productName"
+            type="text"
+            class="form-control"
+            formControlName="productName"
+            placeholder="Enter product name"
+          />
+          @if (isFieldInvalid('productName')) {
+            <span class="form-error">
+              <span class="material-icons-outlined" style="font-size:14px">error</span>
+              {{ getFieldError('productName') }}
+            </span>
+          }
+        </div>
+
+        <!-- Description -->
+        <div class="form-group span-full">
+          <label class="form-label" for="description">Description</label>
+          <textarea
+            id="description"
+            class="form-control"
+            formControlName="description"
+            placeholder="Brief product description..."
+            rows="3"
+          ></textarea>
+          @if (isFieldInvalid('description')) {
+            <span class="form-error">
+              <span class="material-icons-outlined" style="font-size:14px">error</span>
+              {{ getFieldError('description') }}
+            </span>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="form-section">
+
+      <h3 class="form-section-title">Pricing</h3>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="unitPrice">
+            Unit Price <span class="required">*</span>
+          </label>
+          <input
+            id="unitPrice"
+            type="number"
+            class="form-control"
+            formControlName="unitPrice"
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+          />
+          @if (isFieldInvalid('unitPrice')) {
+            <span class="form-error">
+              <span class="material-icons-outlined" style="font-size:14px">error</span>
+              {{ getFieldError('unitPrice') }}
+            </span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="sellingPrice">
+            Selling Price <span class="required">*</span>
+          </label>
+          <input
+            id="sellingPrice"
+            type="number"
+            class="form-control"
+            formControlName="sellingPrice"
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+          />
+          @if (isFieldInvalid('sellingPrice')) {
+            <span class="form-error">
+              <span class="material-icons-outlined" style="font-size:14px">error</span>
+              {{ getFieldError('sellingPrice') }}
+            </span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="purchasingPrice">
+            Purchasing Price <span class="required">*</span>
+          </label>
+          <input
+            id="purchasingPrice"
+            type="number"
+            class="form-control"
+            formControlName="purchasingPrice"
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+          />
+          @if (isFieldInvalid('purchasingPrice')) {
+            <span class="form-error">
+              <span class="material-icons-outlined" style="font-size:14px">error</span>
+              {{ getFieldError('purchasingPrice') }}
+            </span>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Inventory -->
+    <section class="form-section">
+      <h3 class="form-section-title">Inventory</h3>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="unitsAvailable">
+            Units Available <span class="required">*</span>
+          </label>
+          <input
+            id="unitsAvailable"
+            type="number"
+            class="form-control"
+            formControlName="unitsAvailable"
+            placeholder="0"
+            min="0"
+          />
+          @if (isFieldInvalid('unitsAvailable')) {
+            <span class="form-error">
+              <span class="material-icons-outlined" style="font-size:14px">error</span>
+              {{ getFieldError('unitsAvailable') }}
+            </span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="unitOfMeasure">Unit of Measure</label>
+          <select id="unitOfMeasure" class="form-control" formControlName="unitOfMeasure">
+            <option value="">— Select —</option>
+            @for (uom of uomOptions; track uom) {
+              <option [value]="uom">{{ uom }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="barcodeValue">Barcode Value</label>
+          <input
+            id="barcodeValue"
+            type="text"
+            class="form-control"
+            formControlName="barcodeValue"
+            placeholder="e.g. 8901234567890"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reorderLevel">Reorder Level</label>
+          <input
+            id="reorderLevel"
+            type="number"
+            class="form-control"
+            formControlName="reorderLevel"
+            placeholder="Min stock threshold"
+            min="0"
+          />
+          @if (isFieldInvalid('reorderLevel')) {
+            <span class="form-error">
+              <span class="material-icons-outlined" style="font-size:14px">error</span>
+              {{ getFieldError('reorderLevel') }}
+            </span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="maxStockLevel">Max Stock Level</label>
+          <input
+            id="maxStockLevel"
+            type="number"
+            class="form-control"
+            formControlName="maxStockLevel"
+            placeholder="Max capacity"
+            min="0"
+          />
+          @if (isFieldInvalid('maxStockLevel')) {
+            <span class="form-error">
+              <span class="material-icons-outlined" style="font-size:14px">error</span>
+              {{ getFieldError('maxStockLevel') }}
+            </span>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Manufacturing & Batch -->
+    <section class="form-section">
+      <h3 class="form-section-title">Manufacturing &amp; Batch</h3>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="manufacturedBy">Manufactured By</label>
+          <input
+            id="manufacturedBy"
+            type="text"
+            class="form-control"
+            formControlName="manufacturedBy"
+            placeholder="Manufacturer name"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="batchNumber">Batch Number</label>
+          <input
+            id="batchNumber"
+            type="text"
+            class="form-control"
+            formControlName="batchNumber"
+            placeholder="e.g. BT-2026-0101"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="manufacturedOn">Manufactured On</label>
+          <input
+            id="manufacturedOn"
+            type="date"
+            class="form-control"
+            formControlName="manufacturedOn"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="expiryDate">Expiry Date</label>
+          <input
+            id="expiryDate"
+            type="date"
+            class="form-control"
+            formControlName="expiryDate"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="shelfLifeDays">Shelf Life (Days)</label>
+          <input
+            id="shelfLifeDays"
+            type="number"
+            class="form-control"
+            formControlName="shelfLifeDays"
+            placeholder="e.g. 365"
+            min="0"
+          />
+        </div>
+      </div>
+    </section>
+
+
+      <!-- Sticky footer actions -->
+      <footer class="sheet-footer">
+         <!-- Form Actions -->
+            <a routerLink="/products" class="btn btn-secondary btn-lg">
+              <span class="material-icons-outlined" style="font-size:20px">arrow_back</span>
+              Cancel
+            </a>
+            
+              <button type="button" class="btn btn-secondary btn-lg" (click)="onReset()">
+                <span class="material-icons-outlined" style="font-size:20px">refresh</span>
+                Reset
+              </button>
+              <button type="submit" class="btn btn-primary btn-lg-mobile" [disabled]="saving()">
+                @if (saving()) {
+                  <span class="spinner" style="width:18px;height:18px;border-width:2px"></span>
+                } @else {
+                  <span class="material-icons-outlined" style="font-size:20px">save</span>
+                }
+                {{ isEditMode() ? 'Update Product' : 'Save Product' }}
+              </button>
+  
+      </footer>
+
+  </form>
+</div>
+</div>

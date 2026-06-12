@@ -1,0 +1,188 @@
+<!-- Sidebar Backdrop (mobile) -->
+@if (isMobile() && sidebarOpen()) {
+  <div class="sidebar-backdrop" (click)="closeSidebar()"></div>
+}
+
+<!-- Sidebar -->
+<aside
+  class="sidebar"
+  [class.open]="sidebarOpen()"
+  [class.collapsed]="!isMobile() && sidebarCollapsed()"
+>
+  <!-- Brand Row -->
+  <div class="sidebar-brand">
+    <span class="brand-icon material-icons-outlined">inventory_2</span>
+    @if (!sidebarCollapsed() || isMobile()) {
+      <span class="brand-text">InventoryOS</span>
+    }
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+    <a routerLink="/dashboard" routerLinkActive="active" (click)="closeSidebar()"
+      class="nav-item">
+      <span class="material-symbols-outlined">dashboard</span>
+      @if (!sidebarCollapsed() || isMobile()) {
+       <span class="nav-label">Dashboard</span>
+      }
+      </a>
+    <a routerLink="/vendors" routerLinkActive="active" (click)="closeSidebar()"
+      class="nav-item"
+       [title]="sidebarCollapsed() ? 'Vendors' : ''"
+      >
+      <span class="material-symbols-outlined">contacts_product</span>
+      @if (!sidebarCollapsed() || isMobile()) {
+        <span class="nav-label">Vendors</span>
+        <span class="nav-badge">{{ totalVendors }}</span>
+      }
+    </a>
+    <a
+      routerLink="/products"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="nav-item"
+      (click)="closeSidebar()"
+      [title]="sidebarCollapsed() ? 'Products' : ''"
+    >
+      <span class="material-icons-outlined">view_list</span>
+      @if (!sidebarCollapsed() || isMobile()) {
+        <span class="nav-label">Products</span>
+        <span class="nav-badge">{{ totalProducts() }}</span>
+      }
+    </a>
+
+    <a
+      routerLink="/products/new"
+      routerLinkActive="active"
+      class="nav-item"
+      (click)="closeSidebar()"
+      [title]="sidebarCollapsed() ? 'Add Product' : ''"
+    >
+      <span class="material-icons-outlined">add_circle_outline</span>
+      @if (!sidebarCollapsed() || isMobile()) {
+        <span class="nav-label">Add Product</span>
+      }
+    </a>
+  </nav>
+
+  <!-- Low Stock Alert -->
+  @if (lowStockCount() > 0 && (!sidebarCollapsed() || isMobile())) {
+    <div class="sidebar-alert">
+      <span class="material-icons-outlined">warning_amber</span>
+      <div>
+        <strong>{{ lowStockCount() }}</strong> item{{ lowStockCount() > 1 ? 's' : '' }} low stock
+      </div>
+    </div>
+  }
+  @if (lowStockCount() > 0 && sidebarCollapsed() && !isMobile()) {
+    <div class="sidebar-alert-mini" title="{{ lowStockCount() }} low stock items">
+      <span class="material-icons-outlined">warning_amber</span>
+    </div>
+  }
+
+  <!-- User Profile & Logout -->
+  <div class="sidebar-user-section">
+    @if (!sidebarCollapsed() || isMobile()) {
+      <!-- Expanded: full user card -->
+      <!-- <div class="user-card">
+        <div class="user-avatar">{{ authStore.initials() }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ authStore.displayName() }}</span>
+          <span class="user-role">{{ authStore.userRole() }}</span>
+        </div>
+      </div> -->
+      <button class="logout-btn" (click)="promptLogout()" title="Logout">
+        <span class="material-icons-outlined">logout</span>
+        <span class="logout-label">Logout</span>
+      </button>
+    } @else {
+      <!-- Collapsed: avatar only + icon logout -->
+      <!-- <div class="user-card-mini" [title]="authStore.displayName()">
+        <div class="user-avatar mini">{{ authStore.initials() }}</div>
+      </div> -->
+      <button class="logout-btn mini" (click)="promptLogout()" title="Logout">
+        <span class="material-icons-outlined">logout</span>
+      </button>
+    }
+  </div>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    @if (!sidebarCollapsed() || isMobile()) {
+      <span class="version-tag">v1.0.0 · PWA Ready</span>
+    }
+  </div>
+</aside>
+
+<!-- Main Content Area -->
+<div class="main-area" [class.sidebar-collapsed]="!isMobile() && sidebarCollapsed()">
+  <!-- Header -->
+  <header class="top-header">
+    @if (isMobile()) {
+      <button class="btn btn-ghost btn-icon" (click)="toggleSidebar()">
+        <span class="material-icons-outlined">{{ sidebarOpen() ? 'close' : 'menu' }}</span>
+      </button>
+    } @else {
+      <!-- Collapse / Expand toggle for desktop -->
+      <button class="btn btn-ghost btn-icon collapse-toggle" (click)="toggleCollapse()" [title]="sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'">
+        <span class="material-icons-outlined">{{ sidebarCollapsed() ? 'chevron_right' : 'chevron_left' }}</span>
+      </button>
+    }
+    <div class="header-title">
+      <span class="brand-icon-sm material-icons-outlined" [class.hidden]="!isMobile()">inventory_2</span>
+      <span class="header-brand" [class.hidden]="!isMobile()">InventoryOS</span>
+    </div>
+    <div class="header-spacer"></div>
+
+    <!-- Header user summary (always visible) -->
+    <div class="header-user">
+      <div class="header-user-avatar">{{ authStore.initials() }}</div>
+      <div class="header-user-details">
+        <span class="header-user-name">{{ authStore.displayName() }}</span>
+        <span class="header-user-role">{{ authStore.userRole() }}</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <main class="page-content">
+    <router-outlet />
+  </main>
+</div>
+
+<!-- Toast Notifications -->
+@if (notificationService.toasts().length > 0) {
+  <div class="toast-container">
+    @for (toast of notificationService.toasts(); track toast.id) {
+      <div class="toast" [class]="'toast-' + toast.type">
+        <span class="material-icons-outlined">
+          {{ toast.type === 'success' ? 'check_circle' : 'error' }}
+        </span>
+        <span>{{ toast.message }}</span>
+        <button class="btn btn-ghost" style="margin-left: auto; padding: 2px;" (click)="notificationService.dismiss(toast.id)">
+          <span class="material-icons-outlined" style="font-size: 18px;">close</span>
+        </button>
+      </div>
+    }
+  </div>
+}
+
+<!-- Logout Confirmation Modal -->
+@if (showLogoutConfirm()) {
+  <div class="overlay" (click)="cancelLogout()">
+    <div class="logout-modal card" (click)="$event.stopPropagation()">
+      <div class="logout-modal-icon">
+        <span class="material-icons-outlined">logout</span>
+      </div>
+      <h3>Confirm Logout</h3>
+      <!-- <p>Are you sure you want to log out of <strong>{{ authStore.displayName() }}</strong>?</p> -->
+      <div class="logout-modal-actions">
+        <button class="btn btn-secondary" (click)="cancelLogout()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmLogout()">
+          <span class="material-icons-outlined" style="font-size:18px">logout</span>
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+}

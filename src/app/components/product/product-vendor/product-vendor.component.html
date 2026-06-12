@@ -1,0 +1,157 @@
+@if (product(); as product) {
+  <div class="product-vendor-page animate-in">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <div class="breadcrumb">
+          <a routerLink="/products" class="breadcrumb-link">Products</a>
+          <span class="material-icons-outlined breadcrumb-sep">chevron_right</span>
+          <span>{{ product.productName }}</span>
+          <span class="material-icons-outlined breadcrumb-sep">chevron_right</span>
+          <span>Vendors</span>
+        </div>
+        <h1 class="page-title">Manage Vendors</h1>
+        <p class="page-subtitle">
+          Link vendors to <strong>{{ product.productName }}</strong> ({{ product.productCode }})
+        </p>
+      </div>
+      <button class="btn btn-primary" (click)="toggleAddPanel()">
+        <span class="material-icons-outlined">{{ showAddPanel() ? 'close' : 'add' }}</span>
+        {{ showAddPanel() ? 'Close' : 'Add Vendor' }}
+      </button>
+    </div>
+
+    <div class="vendor-layout">
+      <!-- Linked Vendors -->
+      <div class="card linked-section">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="material-icons-outlined section-icon">link</span>
+            Linked Vendors
+            <span class="count-badge">{{ linkedVendors().length }}</span>
+          </h2>
+        </div>
+
+        @if (linkedVendors().length === 0) {
+          <div class="empty-state" style="padding: var(--space-8) var(--space-4);">
+            <span class="material-icons-outlined">group_off</span>
+            <p>No vendors linked yet. Click "Add Vendor" to link one.</p>
+          </div>
+        } @else {
+          <div class="vendor-list">
+            @for (vendor of linkedVendors(); track vendor.id) {
+              <div class="vendor-card" [class.is-preferred]="isPreferred(vendor.id)">
+                <div class="vendor-card-main">
+                  <div class="vendor-info">
+                    <div class="vendor-name-row">
+                      <h3 class="vendor-name">{{ vendor.vendorName }}</h3>
+                      @if (isPreferred(vendor.id)) {
+                        <span class="chip chip-preferred">
+                          <span class="material-icons-outlined" style="font-size:14px">star</span>
+                          Preferred
+                        </span>
+                      }
+                    </div>
+                    <span class="vendor-code">{{ vendor.vendorCode }}</span>  
+                  </div>
+                  <div class="vendor-details">
+                    <div class="vendor-detail">
+                      <span class="material-icons-outlined">person</span>
+                      {{ vendor.contacts.filter((c) => c.isPrimary == true )[0].name
+                      }} -  {{ vendor.contacts.filter((c) => c.isPrimary == true )[0].phone
+                      }} 
+                    </div>
+                  </div>
+                </div>
+                <div class="vendor-card-actions">
+                  <button
+                    class="btn btn-sm"
+                    [class.btn-primary]="!isPreferred(vendor.id)"
+                    [class.btn-secondary]="isPreferred(vendor.id)"
+                    (click)="setPreferred(vendor.id)"
+                    [title]="isPreferred(vendor.id) ? 'Remove preferred' : 'Set as preferred'"
+                  >
+                    <span class="material-icons-outlined" style="font-size:16px">
+                      {{ isPreferred(vendor.id) ? 'star' : 'star_outline' }}
+                    </span>
+                    {{ isPreferred(vendor.id) ? 'Preferred' : 'Set Preferred' }}
+                  </button>
+                  <button
+                    class="btn btn-danger btn-sm"
+                    (click)="removeVendor(vendor.id)"
+                    title="Remove vendor"
+                  >
+                    <span class="material-icons-outlined" style="font-size:16px">link_off</span>
+                    Remove
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Add Vendor Panel -->
+      @if (showAddPanel()) {
+        <div class="card add-vendor-section animate-in">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="material-icons-outlined section-icon">person_add</span>
+              Available Vendors
+            </h2>
+          </div>
+
+          <div class="search-box" style="margin-bottom: var(--space-4);">
+            <span class="material-icons-outlined">search</span>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search vendors..."
+              [ngModel]="searchTerm()"
+              (ngModelChange)="onSearch($event)"
+            />
+          </div>
+
+          @if (availableVendors().length === 0) {
+            <div class="empty-state" style="padding: var(--space-6) var(--space-4);">
+              <span class="material-icons-outlined">search_off</span>
+              @if (searchTerm()) {
+                <p>No matching vendors found</p>
+              } @else {
+                <p>All active vendors are already linked to this product</p>
+              }
+            </div>
+          } @else {
+            <div class="available-vendor-list">
+              @for (vendor of availableVendors(); track vendor.id) {
+                <div class="available-vendor-row">
+                  <div class="available-vendor-info">
+                    <span class="vendor-name-sm">{{ vendor.vendorName }}</span>
+                    <span class="vendor-meta">
+                     {{ vendor.vendorCode }}   <!--· {{ vendor.contactPerson }} -->
+                    </span>
+                  </div>
+                  <button
+                    class="btn btn-primary btn-sm"
+                    (click)="addVendor(vendor.id)"
+                  >
+                    <span class="material-icons-outlined" style="font-size:16px">add</span>
+                    Link
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Back Button -->
+    <div class="back-row">
+      <a routerLink="/products" class="btn btn-secondary">
+        <span class="material-icons-outlined" style="font-size:20px">arrow_back</span>
+        Back to Products
+      </a>
+    </div>
+  </div>
+}
