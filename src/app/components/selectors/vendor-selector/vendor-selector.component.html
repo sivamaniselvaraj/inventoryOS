@@ -1,0 +1,35 @@
+<div class="selector-wrap">
+  <label class="selector-label">
+    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+      <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+      <path fill-rule="evenodd" d="M2 9h16v5a2 2 0 01-2 2H4a2 2 0 01-2-2V9zm4 2a1 1 0 100 2h4a1 1 0 100-2H6z" clip-rule="evenodd"/>
+    </svg>
+    Vendor
+  </label>
+
+  @if (!userStore.selectedLocationId()) {
+    <div class="selector-disabled">Select a location first</div>
+  } @else if (vendorStore.vendorsForLocation().length === 0) {
+    <div class="selector-disabled">No vendors available for this location</div>
+  } @else {
+       <select
+       #vendorSelect
+      class="selector-input"
+      [value]="vendorStore.selectedVendorId()"
+      (change)="onVendorChange($any($event.target).value)">
+      <option value="" disabled [selected]="!vendorStore.selectedVendorId()">Select vendor…</option>
+      @for (v of vendorStore.vendorsForLocation(); track v.id) {
+        <option [value]="v.id">{{ v.vendorName }}</option>
+      }
+    </select>
+    {{vendorStore.selectedVendorId()}}
+
+    <!-- @if (vendorStore.getVendorById(vendorStore.vendorIdSelected()); as vendor) {
+      <div class="vendor-info">
+        GSTIN: {{ vendor.taxId }}
+      </div>
+    } -->
+  }
+
+  <!-- (ngModelChange)="vendorStore._selectedVendorId($event)" -->
+</div>

@@ -1,6 +1,6 @@
 <div class="search-wrap">
   <div class="search-field">
-    <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
       <path
         fill-rule="evenodd"
         d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0
@@ -14,22 +14,43 @@
       class="search-input"
       placeholder="Search by product name or code…"
       [ngModel]="store.searchQuery()"
-      (ngModelChange)="store.updateSearch($event)"
-      (focus)="dropdownOpen.set(true)"
+      (ngModelChange)="onQueryChange($event)"
+      (focus)="onFocus()"
       (blur)="onBlur()"
+      (keydown)="onKeydown($event)"
+      role="combobox"
+      aria-autocomplete="list"
+      [attr.aria-expanded]="dropdownOpen() && store.hasQuery()"
+      aria-haspopup="listbox"
     />
 
     @if (store.hasQuery()) {
       <button class="clear-btn" (mousedown)="store.clearSearch()">✕</button>
     }
+
+  <!-- Keyboard hint -->
+    @if (dropdownOpen() && store.hasResults()) {
+      <div class="kbd-hint">
+        <span class="kbd">↑↓</span> navigate
+        <span class="kbd">↵</span> select
+        <span class="kbd">esc</span> close
+      </div>
+    }
   </div>
 
   <!-- Dropdown results -->
   @if (dropdownOpen() && store.hasQuery()) {
-    <div class="dropdown">
+    <div class="dropdown" #dropdownList role="listbox">
       @if (store.hasResults()) {
-        @for (product of store.filteredProducts(); track product.productCode) {
-          <button class="dropdown-item" (mousedown)="selectProduct(product)">
+        @for (product of store.filteredProducts(); track product.productCode; let i = $index) {
+          <button
+            class="dropdown-item"
+            [class.item-active]="i === activeIndex()"
+            (mousedown)="selectProduct(product)"
+            (mouseenter)="activeIndex.set(i)"
+            role="option"
+            [attr.aria-selected]="i === activeIndex()"
+          >
             <span class="item-code">{{ product.productCode }}</span>
             <span class="item-name">{{ product.productName }}</span>
             <span class="item-price">₹{{ product.unitPrice | number }}</span>

@@ -59,7 +59,7 @@ export const routes: Routes = [
     title: 'Add Product',
   },
   {
-    path: 'products/:id',
+    path: 'products/:code',
     loadComponent: () =>
       import('./components/product/product-detail/product-detail.component').then(
         (m) => m.ProductDetailComponent,
@@ -67,7 +67,7 @@ export const routes: Routes = [
     title: 'Product Details',
   },
   {
-    path: 'products/:id/edit',
+    path: 'products/:code/edit',
     loadComponent: () =>
       import('./components/product/product-form/product-form.component').then(
         (m) => m.ProductFormComponent,
@@ -75,7 +75,7 @@ export const routes: Routes = [
     title: 'Edit Product',
   },
   {
-    path: 'products/:id/vendors',
+    path: 'products/:code/vendors',
     loadComponent: () =>
       import('./components/product/product-vendor/product-vendor.component').then(
         (m) => m.ProductVendorComponent,
@@ -90,6 +90,15 @@ export const routes: Routes = [
         (m) => m.OrderCreateComponent,
       ),
     title: 'Orders',
+  },
+  /* Purchase Order Router */
+  {
+    path: 'purchaseorders',
+    loadComponent: () =>
+      import('./components/order/purchase-order/po-create.component').then(
+        (m) => m.PoCreateComponent,
+      ),
+    title: 'Purchase Orders',
   },
   { path: '**', redirectTo: 'dashboard' },
 ];

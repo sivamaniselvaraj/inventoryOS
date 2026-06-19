@@ -12,6 +12,7 @@ import {
   Product,
   ProductFormData,
   UNIT_OF_MEASURE_OPTIONS,
+  GST_RATE_OPTIONS,
 } from '../../../models';
 
 @Component({
@@ -29,25 +30,42 @@ export class ProductFormComponent implements OnInit {
   private readonly notify = inject(NotificationService);
 
   readonly uomOptions = UNIT_OF_MEASURE_OPTIONS;
+  readonly gstRateOptions = GST_RATE_OPTIONS;
   readonly isEditMode = signal(false);
   readonly productId = signal<string | null>(null);
   readonly saving = signal(false);
+  readonly gstEnabled = signal(false);
 
   readonly pageTitle = computed(() =>
     this.isEditMode() ? 'Edit Product' : 'Add New Product'
   );
+
+  /** Live GST amount based on selling price × rate */
+  readonly gstAmount = computed(() => {
+    if (!this.form) return 0;
+    const selling = this.form.get('sellingPrice')?.value ?? 0;
+    const rate = this.form.get('gstRate')?.value;
+    if (!this.gstEnabled() || rate == null) return 0;
+    return Math.round((selling * rate) / 100 * 100) / 100;
+  });
+
+  readonly sellingPriceIncGst = computed(() => {
+    if (!this.form) return 0;
+    const selling = this.form.get('sellingPrice')?.value ?? 0;
+    return selling + this.gstAmount();
+  });
 
   form!: FormGroup;
 
   ngOnInit(): void {
     this.initForm();
 
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      const product = this.productStore.getProductById(id);
+    const code = this.route.snapshot.paramMap.get('code');
+    if (code) {
+      const product = this.productStore.getProductByCode(code);
       if (product) {
         this.isEditMode.set(true);
-        this.productId.set(id);
+        this.productId.set(code);
         this.patchForm(product);
       } else {
         this.notify.error('Product not found');
@@ -63,7 +81,7 @@ export class ProductFormComponent implements OnInit {
       description: ['', [Validators.maxLength(500)]],
       unitPrice: [0, [Validators.required, Validators.min(0)]],
       sellingPrice: [0, [Validators.required, Validators.min(0)]],
-      purchasingPrice: [0, [Validators.required, Validators.min(0)]],
+      //purchasingPrice: [0, [Validators.required, Validators.min(0)]],
       unitsAvailable: [0, [Validators.required, Validators.min(0)]],
       barcodeValue: ['', [Validators.maxLength(50)]],
       unitOfMeasure: [''],
@@ -74,6 +92,21 @@ export class ProductFormComponent implements OnInit {
       batchNumber: ['', [Validators.maxLength(50)]],
       reorderLevel: [null, [Validators.min(0)]],
       maxStockLevel: [null, [Validators.min(0)]],
+      gstApplicable: [false],
+      gstRate: [null],
+    });
+
+    // Watch gstApplicable to toggle gstRate validation
+    this.form.get('gstApplicable')!.valueChanges.subscribe((applicable: boolean) => {
+      this.gstEnabled.set(applicable);
+      const gstRateCtrl = this.form.get('gstRate')!;
+      if (applicable) {
+        gstRateCtrl.setValidators([Validators.required]);
+      } else {
+        gstRateCtrl.clearValidators();
+        gstRateCtrl.setValue(null);
+      }
+      gstRateCtrl.updateValueAndValidity();
     });
   }
 
@@ -84,7 +117,7 @@ export class ProductFormComponent implements OnInit {
       description: product.description,
       unitPrice: product.unitPrice,
       sellingPrice: product.sellingPrice,
-      purchasingPrice: product.purchasingPrice,
+      //purchasingPrice: product.purchasingPrice,
       unitsAvailable: product.unitsAvailable,
       barcodeValue: product.barcodeValue,
       unitOfMeasure: product.unitOfMeasure,
@@ -95,7 +128,11 @@ export class ProductFormComponent implements OnInit {
       batchNumber: product.batchNumber,
       reorderLevel: product.reorderLevel,
       maxStockLevel: product.maxStockLevel,
+      gstApplicable: product.gstApplicable,
+      gstRate: product.gstRate,
     });
+    // Sync the signal
+    this.gstEnabled.set(product.gstApplicable); 
   }
 
   isFieldInvalid(fieldName: string): boolean {
@@ -111,6 +148,13 @@ export class ProductFormComponent implements OnInit {
     if (control.errors['maxlength'])
       return `Maximum ${control.errors['maxlength'].requiredLength} characters`;
     return 'Invalid value';
+  }
+
+  getSelectedGstDescription(): string {
+    const rate = this.form.get('gstRate')?.value;
+    if (rate == null) return '';
+    const option = this.gstRateOptions.find((o) => o.value === rate);
+    return option?.description ?? '';
   }
 
   onSubmit(): void {
@@ -155,6 +199,8 @@ export class ProductFormComponent implements OnInit {
         sellingPrice: 0,
         purchasingPrice: 0,
         unitsAvailable: 0,
+        gstApplicable: false,
+        gstRate: null,
       });
     }
   }

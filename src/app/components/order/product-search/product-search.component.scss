@@ -58,6 +58,36 @@
   background: #e2e8f0;
 }
 
+/* ── Keyboard shortcut hint ────────────────────────────────────── */
+
+.kbd-hint {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 2px);
+  font-size: 10px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  color: #94a3b8;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 1px 5px;
+  line-height: 1.4;
+  min-width: 16px;
+}
+
 /* ── Dropdown ──────────────────────────────────────────────────── */
 
 .dropdown {
@@ -90,9 +120,25 @@
   transition: background 0.1s;
 }
 
-.dropdown-item:hover,
-.dropdown-item:focus {
+.dropdown-item:hover {
   background: #f1f5f9;
+}
+
+/* ── Active / keyboard-highlighted item ────────────────────────── */
+
+.dropdown-item.item-active {
+  background: #eff6ff;
+  outline: 2px solid #38bdf8;
+  outline-offset: -2px;
+}
+
+.dropdown-item.item-active .item-code {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.dropdown-item.item-active .item-name {
+  color: #0f172a;
 }
 
 .item-code {
@@ -104,10 +150,7 @@
   border-radius: 4px;
   flex-shrink: 0;
   letter-spacing: 0.5px;
-}
-
-.dropdown-item:hover .item-code {
-  background: #e2e8f0;
+  transition: background 0.08s, color 0.08s;
 }
 
 .item-name {

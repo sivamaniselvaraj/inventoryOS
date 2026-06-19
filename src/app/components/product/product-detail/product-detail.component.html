@@ -14,11 +14,11 @@
         }
       </div>
       <div class="header-actions">
-        <a [routerLink]="['/products', product.id, 'edit']" class="btn btn-primary">
+        <a [routerLink]="['/products', product.productCode, 'edit']" class="btn btn-primary">
           <span class="material-icons-outlined">edit</span>
           Edit
         </a>
-        <a [routerLink]="['/products', product.id, 'vendors']" class="btn btn-secondary">
+        <a [routerLink]="['/products', product.productCode, 'vendors']" class="btn btn-secondary">
           <span class="material-icons-outlined">group</span>
           Vendors
         </a>
@@ -73,17 +73,10 @@
         </div>
       </div>
 
-      @if (preferredVendor(); as vendor) {
-        <div class="summary-card">
-          <div class="summary-icon icon-vendor">
-            <span class="material-icons-outlined">star</span>
-          </div>
-          <div class="summary-info">
-            <span class="summary-value vendor-name-truncate">{{ vendor.vendorName }}</span>
-            <span class="summary-label">Preferred Vendor</span>
-          </div>
-        </div>
-      }
+      <div class="summary-card">
+        <div class="summary-icon icon-vendor"><span class="material-icons-outlined">group</span></div>
+        <div class="summary-info"><span class="summary-value">{{ linkedVendors().length }}</span><span class="summary-label">Linked Vendors</span></div>
+      </div>
     </div>
 
     <!-- Stock Progress Bar -->
@@ -130,10 +123,7 @@
             <span class="field-label">Selling Price</span>
             <span class="field-value highlight">{{ formatCurrency(product.sellingPrice) }}</span>
           </div>
-          <div class="field-row">
-            <span class="field-label">Purchasing Price</span>
-            <span class="field-value">{{ formatCurrency(product.purchasingPrice) }}</span>
-          </div>
+
           <div class="field-row">
             <span class="field-label">Margin</span>
             <span class="field-value">
@@ -146,6 +136,36 @@
               }
             </span>
           </div>
+          <div class="field-row">
+            <span class="field-label">GST Applicable</span>
+            <span class="field-value">
+              @if (product.gstApplicable) {
+                <span class="badge badge-success">Yes</span>
+              } @else {
+                <span class="badge" style="background: var(--color-bg-tertiary); color: var(--color-text-muted);">No</span>
+              }
+            </span>
+          </div>
+          @if (product.gstApplicable && product.gstRate !== null) {
+            <div class="field-row">
+              <span class="field-label">GST Rate</span>
+              <span class="field-value highlight">{{ product.gstRate }}%</span>
+            </div>
+            <!-- @if (product.hsnCode) {
+              <div class="field-row">
+                <span class="field-label">HSN / SAC Code</span>
+                <span class="field-value mono">{{ product.hsnCode }}</span>
+              </div>
+            } -->
+            <div class="field-row">
+              <span class="field-label">GST Amount</span>
+              <span class="field-value">{{ formatCurrency(gstAmount()) }}</span>
+            </div>
+            <div class="field-row gst-total-row">
+              <span class="field-label">Selling Price (incl. GST)</span>
+              <span class="field-value highlight">{{ formatCurrency(sellingPriceIncGst()) }}</span>
+            </div>
+          }
         </div>
       </section>
 
@@ -238,7 +258,7 @@
             Linked Vendors
             <span class="count-badge">{{ linkedVendors().length }}</span>
           </h2>
-          <a [routerLink]="['/products', product.id, 'vendors']" class="btn btn-ghost btn-sm">
+          <a [routerLink]="['/products', product.productCode, 'vendors']" class="btn btn-ghost btn-sm">
             Manage
             <span class="material-icons-outlined" style="font-size:16px">arrow_forward</span>
           </a>
@@ -248,21 +268,21 @@
           <div class="empty-vendors">
             <span class="material-icons-outlined">group_off</span>
             <p>No vendors linked</p>
-            <a [routerLink]="['/products', product.id, 'vendors']" class="btn btn-secondary btn-sm">
+            <a [routerLink]="['/products', product.productCode, 'vendors']" class="btn btn-secondary btn-sm">
               <span class="material-icons-outlined" style="font-size:16px">add</span>
               Link Vendor
             </a>
           </div>
-        } @else {
+        } @else { 
           <div class="vendor-chips">
-            @for (vendor of linkedVendors(); track vendor.id) {
-              <div class="vendor-chip" [class.is-preferred]="product.preferredVendorId === vendor.id">
-                @if (product.preferredVendorId === vendor.id) {
+            @for (item of linkedVendors(); track item.vendor.id) {
+              <div class="vendor-chip" [class.is-preferred]="item.link.isPreferred">
+                @if (item.link.isPreferred) {
                   <span class="material-icons-outlined chip-star">star</span>
                 }
                 <div class="chip-info">
-                  <span class="chip-name">{{ vendor.vendorName }}</span>
-                  <span class="chip-meta">{{ vendor.vendorCode }} · {{ primaryName(vendor) }}</span>
+                  <span class="chip-name">{{ item.vendor.vendorName }} · {{primaryName(item.vendor)}}</span>
+                  <span class="chip-meta">{{ item.vendor.vendorCode }} · {{ item.vendor.city }} · Unit Price: ₹{{ item.link.unitPrice.toLocaleString('en-IN') }}</span>
                 </div>
               </div>
             }

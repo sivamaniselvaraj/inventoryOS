@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { ProductSearchComponent } from '../product-search/product-search.component';
+import { WhatsappService } from '../../../services/whatsapp.service';
 import { OrderStore } from '../../../store';
 import { Product } from '../../../models';
 
@@ -14,6 +15,7 @@ import { Product } from '../../../models';
 })
 export class OrderCreateComponent {
   readonly store = inject(OrderStore);
+  readonly whatsapp = inject(WhatsappService);
   readonly Math = Math;
 
   onProductSelected(product: Product): void {
@@ -28,6 +30,8 @@ export class OrderCreateComponent {
 
   onSubmit(): void {
     this.store.submitOrder();
+    console.log(this.store.orders()[0]);
+    this.whatsapp.send(this.store.orders()[0]);
     this.store.navigateTo('orders');
   }
 }

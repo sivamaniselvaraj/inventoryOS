@@ -6,7 +6,7 @@
         <div class="breadcrumb">
           <a routerLink="/products" class="breadcrumb-link">Products</a>
           <span class="material-icons-outlined breadcrumb-sep">chevron_right</span>
-          <span>{{ product.productName }}</span>
+          <a [routerLink]="['/products', product.productCode]" class="breadcrumb-link"><span>{{ product.productName }}</span></a>
           <span class="material-icons-outlined breadcrumb-sep">chevron_right</span>
           <span>Vendors</span>
         </div>
@@ -39,46 +39,54 @@
           </div>
         } @else {
           <div class="vendor-list">
-            @for (vendor of linkedVendors(); track vendor.id) {
-              <div class="vendor-card" [class.is-preferred]="isPreferred(vendor.id)">
+            @for (item of linkedVendors(); track item.vendor.id) {
+              <div class="vendor-card" [class.is-preferred]="item.link.isPreferred">
                 <div class="vendor-card-main">
                   <div class="vendor-info">
                     <div class="vendor-name-row">
-                      <h3 class="vendor-name">{{ vendor.vendorName }}</h3>
-                      @if (isPreferred(vendor.id)) {
+                      <h3 class="vendor-name">{{ item.vendor.vendorName }}</h3>
+                      @if (item.link.isPreferred) {
                         <span class="chip chip-preferred">
                           <span class="material-icons-outlined" style="font-size:14px">star</span>
                           Preferred
                         </span>
                       }
                     </div>
-                    <span class="vendor-code">{{ vendor.vendorCode }}</span>  
+                    <span class="vendor-code">{{ item.vendor.vendorCode }}</span>  
                   </div>
                   <div class="vendor-details">
                     <div class="vendor-detail">
                       <span class="material-icons-outlined">person</span>
-                      {{ vendor.contacts.filter((c) => c.isPrimary == true )[0].name
-                      }} -  {{ vendor.contacts.filter((c) => c.isPrimary == true )[0].phone
-                      }} 
+                      {{ getPrimaryContactName(item.vendor) }} · 
+                      <span class="material-icons-outlined">call</span>
+                      {{getPrimaryContactPhone(item.vendor)}}
                     </div>
+                  </div>
+                  <!-- Unit Price (editable) -->
+                  <div class="unit-price-row">
+                    <label class="unit-price-label">Unit Price (₹)</label>
+                    <input type="number" class="form-control unit-price-input"
+                      [ngModel]="item.link.unitPrice"
+                      (ngModelChange)="updateLinkPrice(item.vendor.id, $event)"
+                      min="0" step="0.01" />
                   </div>
                 </div>
                 <div class="vendor-card-actions">
                   <button
                     class="btn btn-sm"
-                    [class.btn-primary]="!isPreferred(vendor.id)"
-                    [class.btn-secondary]="isPreferred(vendor.id)"
-                    (click)="setPreferred(vendor.id)"
-                    [title]="isPreferred(vendor.id) ? 'Remove preferred' : 'Set as preferred'"
+                    [class.btn-primary]="!item.link.isPreferred"
+                    [class.btn-secondary]="item.link.isPreferred"
+                    (click)="setPreferred(item.vendor.id)"
+                    [title]="item.link.isPreferred ? 'Remove preferred' : 'Set as preferred'"
                   >
                     <span class="material-icons-outlined" style="font-size:16px">
-                      {{ isPreferred(vendor.id) ? 'star' : 'star_outline' }}
+                      {{ item.link.isPreferred ? 'star' : 'star_outline' }}
                     </span>
-                    {{ isPreferred(vendor.id) ? 'Preferred' : 'Set Preferred' }}
+                    {{ item.link.isPreferred ? 'Preferred' : 'Set Preferred' }}
                   </button>
                   <button
                     class="btn btn-danger btn-sm"
-                    (click)="removeVendor(vendor.id)"
+                    (click)="removeVendor(item.vendor.id)"
                     title="Remove vendor"
                   >
                     <span class="material-icons-outlined" style="font-size:16px">link_off</span>

@@ -1,9 +1,9 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
-import { ProductStore, VendorStore } from '../../../store';
+//import { DatePipe, JsonPipe } from '@angular/common';
+import { ProductStore, VendorStore, ProductVendorStore } from '../../../store';
 import { NotificationService } from '../../../services/notification.service';
-import { Product, Vendor } from '../../../models';
+import { Product, Vendor, GST_RATE_OPTIONS, ProductVendorLink } from '../../../models';
 
 @Component({
   selector: 'app-product-detail',
@@ -17,6 +17,7 @@ export class ProductDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly productStore = inject(ProductStore);
   private readonly vendorStore = inject(VendorStore);
+  private readonly productVendorStore = inject(ProductVendorStore);
   private readonly notify = inject(NotificationService);
 
   readonly product = signal<Product | null>(null);
@@ -26,15 +27,10 @@ export class ProductDetailComponent implements OnInit {
   readonly linkedVendors = computed(() => {
     const p = this.product();
     if (!p) return [];
-    return p.vendorIds
-      .map((id) => this.vendorStore.getVendorById(id))
-      .filter((v): v is Vendor => v !== undefined);
-  });
-
-  readonly preferredVendor = computed(() => {
-    const p = this.product();
-    if (!p?.preferredVendorId) return null;
-    return this.vendorStore.getVendorById(p.preferredVendorId) ?? null;
+      return this.productVendorStore.getLinksForProduct(p.productCode).map((link) => ({
+        link, 
+        vendor: this.vendorStore.getVendorById(link.vendorId),
+      })).filter((item): item is {link: ProductVendorLink; vendor: Vendor} => !!item.vendor)
   });
 
   readonly stockStatus = computed(() => {
@@ -50,10 +46,30 @@ export class ProductDetailComponent implements OnInit {
   });
 
   readonly profitMargin = computed(() => {
+    return null;
+    // const p = this.product();
+    // if (!p || p.purchasingPrice === 0) return null;
+    // const margin = ((p.sellingPrice - p.purchasingPrice) / p.purchasingPrice) * 100;
+    // return Math.round(margin * 100) / 100;
+  });
+
+    readonly gstAmount = computed(() => {
     const p = this.product();
-    if (!p || p.purchasingPrice === 0) return null;
-    const margin = ((p.sellingPrice - p.purchasingPrice) / p.purchasingPrice) * 100;
-    return Math.round(margin * 100) / 100;
+    if (!p?.gstApplicable || p.gstRate == null) return 0;
+    return Math.round((p.sellingPrice * p.gstRate) / 100 * 100) / 100;
+  });
+
+  readonly sellingPriceIncGst = computed(() => {
+    const p = this.product();
+    if (!p) return 0;
+    return p.sellingPrice + this.gstAmount();
+  });
+
+  readonly gstRateDescription = computed(() => {
+    const p = this.product();
+    if (!p?.gstApplicable || p.gstRate == null) return '';
+    const option = GST_RATE_OPTIONS.find((o) => o.value === p.gstRate);
+    return option?.description ?? '';
   });
 
   readonly stockPercentage = computed(() => {
@@ -76,12 +92,12 @@ export class ProductDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (!id) {
+    const code = this.route.snapshot.paramMap.get('code');
+    if (!code) {
       this.router.navigate(['/products']);
       return;
     }
-    const product = this.productStore.getProductById(id);
+    const product = this.productStore.getProductByCode(code);
     if (product) {
       this.product.set(product);
     } else {

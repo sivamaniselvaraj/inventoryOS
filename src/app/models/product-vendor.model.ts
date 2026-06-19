@@ -1,5 +1,19 @@
 export interface ProductVendorLink {
-  productId: string;
+  productCode: string;
   vendorId: string;
-  isPreferred: boolean;
+  isPreferred?: boolean;
+  unitPrice: number;
+}
+
+
+/* ── Resolved view: product + vendor-specific price ─────────────── */
+/*    (computed at runtime by joining Product + VendorProductLink)   */
+
+export interface VendorProduct {
+  productCode: string;
+  productName: string;
+  unitPrice: number;        // from VendorProductLink
+  gstPercent: number|null;       // from Product master
+  vendorId: string;
+  vendorCount?: number;      // how many vendors carry this product
 }

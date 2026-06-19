@@ -76,6 +76,19 @@
         <span class="nav-label">Orders</span>
       }
     </a>
+
+    <a
+      routerLink="/purchaseorders"
+      routerLinkActive="active"
+      class="nav-item"
+      (click)="closeSidebar()"
+      [title]="sidebarCollapsed() ? 'Purchase Orders' : ''"
+    >
+      <span class="material-icons-outlined">storefront</span>
+      @if (!sidebarCollapsed() || isMobile()) {
+        <span class="nav-label">Purchase Orders</span>
+      }
+    </a>
   </nav>
 
   <!-- Low Stock Alert -->

@@ -126,25 +126,25 @@ export class ProductListComponent implements OnInit {
         viewBtn.className = 'btn btn-ghost btn-sm';
         viewBtn.title = 'View';
         viewBtn.innerHTML = '<span class="material-icons-outlined" style="font-size:18px">visibility</span>';
-        viewBtn.addEventListener('click', () => this.viewProduct(params.data!.id));
+        viewBtn.addEventListener('click', () => this.viewProduct(params.data!.productCode));
 
         const editBtn = document.createElement('button');
         editBtn.className = 'btn btn-ghost btn-sm';
         editBtn.title = 'Edit';
         editBtn.innerHTML = '<span class="material-icons-outlined" style="font-size:18px">edit</span>';
-        editBtn.addEventListener('click', () => this.editProduct(params.data!.id));
+        editBtn.addEventListener('click', () => this.editProduct(params.data!.productCode));
 
         const vendorBtn = document.createElement('button');
         vendorBtn.className = 'btn btn-ghost btn-sm';
         vendorBtn.title = 'Vendors';
         vendorBtn.innerHTML = '<span class="material-icons-outlined" style="font-size:18px">group</span>';
-        vendorBtn.addEventListener('click', () => this.manageVendors(params.data!.id));
+        vendorBtn.addEventListener('click', () => this.manageVendors(params.data!.productCode));
 
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'btn btn-ghost btn-sm';
         deleteBtn.title = 'Delete';
         deleteBtn.innerHTML = '<span class="material-icons-outlined" style="font-size:18px;color:var(--color-danger)">delete_outline</span>';
-        deleteBtn.addEventListener('click', () => this.showDeleteConfirm.set(params.data!.id));
+        deleteBtn.addEventListener('click', () => this.showDeleteConfirm.set(params.data!.productCode));
 
         container.appendChild(viewBtn);
         container.appendChild(editBtn);
@@ -173,16 +173,16 @@ export class ProductListComponent implements OnInit {
     this.productStore.setSearchTerm(term);
   }
 
-  viewProduct(id: string): void {
-    this.router.navigate(['/products', id]);
+  viewProduct(code: string): void {
+    this.router.navigate(['/products', code]);
   }
 
-  editProduct(id: string): void {
-    this.router.navigate(['/products', id, 'edit']);
+  editProduct(code: string): void {
+    this.router.navigate(['/products', code, 'edit']);
   }
 
-  manageVendors(id: string): void {
-    this.router.navigate(['/products', id, 'vendors']);
+  manageVendors(code: string): void {
+    this.router.navigate(['/products', code, 'vendors']);
   }
 
   confirmDelete(): void {

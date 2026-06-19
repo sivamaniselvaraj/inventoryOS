@@ -1,0 +1,231 @@
+<!-- FIXED TOP: Location & Vendor (compact row)  -->
+ <div class="top-bar">
+<div class="selectors-row">
+  <app-location-selector />
+  <app-vendor-selector  (vendorChange)="onVendorChange($event)"/>
+</div>
+
+<!-- Editing banner -->
+@if (poStore.editingId()) {
+  <div class="editing-banner">✏️ Editing {{ poStore.editingId() }}</div>
+}
+</div>
+
+<!-- Gate: need location + vendor -->
+@if (!userStore.selectedLocationId() || !vendorStore.selectedVendorId()) {
+  <div class="empty">
+    <div class="empty-icon">🏭</div>
+    <p class="empty-text">Select a location and vendor to view products</p>
+  </div>
+} @else {
+  <!-- ═══ COLLAPSIBLE CATALOG PANEL ═══ -->
+  <div class="catalog-panel" [class.collapsed]="catalogCollapsed()">
+    <button class="catalog-toggle" (click)="catalogCollapsed.set(!catalogCollapsed())">
+      <span class="toggle-title">
+        Product Catalog — {{ vendorStore.selectedVendor()?.vendorName }}
+        <span class="toggle-count">{{ vendorStore.productsForVendor().length }} products</span>
+      </span>
+      <span class="toggle-icon">{{ catalogCollapsed() ? '▼' : '▲' }}</span>
+    </button>
+
+    @if (!catalogCollapsed()) {
+      <div class="catalog-body">
+        <div class="catalog-toolbar">
+          <input type="text" placeholder="Filter products…" class="filter-input"
+            [ngModel]="productFilter()"
+            (ngModelChange)="productFilter.set($event)" />
+          <button class="add-all-btn" (click)="onAddAll()">+ Add All</button>
+        </div>
+
+        <div class="catalog-grid-wrap">
+          <div class="catalog-grid">
+            <div class="catalog-header">
+              <span class="cat-col cat-code">Code</span>
+              <span class="cat-col cat-name">Product</span>
+              <span class="cat-col cat-price">Unit ₹</span>
+              <span class="cat-col cat-gst">GST%</span>
+              <!-- <span class="cat-col cat-vendors">Vnd</span> -->
+              <span class="cat-col cat-action"></span>
+            </div>
+            @for (p of filteredCatalog; track p.productCode) {
+              <div class="catalog-row" [class.row-added]="isProductAdded(p.productCode)">
+                <span class="cat-col cat-code code-text">{{ p.productCode }}</span>
+                <div class="cat-col cat-name">
+                  <span class="product-name-text">{{ p.productName }}</span>
+                  <!-- @if (isCheapestVendor(p.code)) {
+                    <span class="best-price-tag">Best price</span>
+                  } -->
+                </div>
+                <span class="cat-col cat-price num">{{ p.unitPrice | number }}</span>
+                <span class="cat-col cat-gst num">{{ p.gstPercent }}%</span>
+                <!-- <span class="cat-col cat-vendors">
+                  <span class="vendor-count-badge" [class.multi]="p.vendorCount > 1">
+                    {{ p.vendorCount }}
+                  </span>
+                </span> -->
+                <span class="cat-col cat-action">
+                  @if (isProductAdded(p.productCode)) {
+                    <span class="added-badge">✓</span>
+                  } @else {
+                    <button class="add-btn" (click)="onAddProduct(p)">+</button>
+                  }
+                </span>
+              </div>
+            } @empty {
+              <div class="catalog-empty">No products match filter</div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+  <!-- ═══ SELECTED ITEMS GRID ═══ -->
+  @if (!poStore.hasItems()) {
+    <div class="empty-items">
+      <span class="empty-items-icon">📥</span>
+      Add products from the catalog above
+    </div>
+  } @else {
+    <div class="order-section">
+      <div class="order-section-header">
+        <h3 class="section-title">Selected Items</h3>
+        <span class="item-count-badge">{{ poStore.itemCount() }}</span>
+        <span class="header-spacer"></span>
+        <span class="header-grand-total">₹{{ poStore.grandTotal() | number:'1.2-2' }}</span>
+      </div>
+
+      <div class="po-grid-wrap">
+        <div class="po-grid">
+          <!-- Header -->
+          <div class="po-header">
+            <span class="po-col col-product">Product</span>
+            <span class="po-col col-price">Price</span>
+            <span class="po-col col-qty">Qty</span>
+            <span class="po-col col-gst">GST</span>
+            <span class="po-col col-disc">Discount</span>
+            <span class="po-col col-total">Total</span>
+            <span class="po-col col-rm"></span>
+          </div>
+
+          <!-- Rows -->
+          @for (item of poStore.currentItems(); track item.code; let idx = $index) {
+            <div class="po-row" [class.row-alt]="idx % 2 === 1">
+              <!-- Product -->
+              <div class="po-col col-product">
+                <span class="row-code">{{ item.code }}</span>
+                <span class="row-name">{{ item.name }}</span>
+              </div>
+
+              <!-- Purchase Price -->
+              <span class="po-col col-price num">₹{{ item.unitPrice | number }}</span>
+
+              <!-- Quantity -->
+              <div class="po-col col-qty">
+                <div class="qty-inline">
+                  <button class="qty-btn" (click)="poStore.updateItem(item.code, 'quantity', Math.max(1, item.quantity - 1))">−</button>
+                  <input type="number" class="cell-input qty-cell" min="1"
+                    [ngModel]="item.quantity"
+                    (ngModelChange)="poStore.updateItem(item.code, 'quantity', Math.max(1, $event))" />
+                  <button class="qty-btn" (click)="poStore.updateItem(item.code, 'quantity', item.quantity + 1)">+</button>
+                </div>
+              </div>
+
+              <!-- GST -->
+              <div class="po-col col-gst">
+                <span class="gst-tag">{{ item.gstPercent }}%</span>
+                <span class="gst-amt">₹{{ item.gstAmount | number:'1.2-2' }}</span>
+              </div>
+
+              <!-- Discount -->
+              <div class="po-col col-disc">
+                <div class="disc-row">
+                  <input type="number" class="cell-input disc-cell" min="0" max="100"
+                    placeholder="%"
+                    [ngModel]="item.discountPercent"
+                    (ngModelChange)="poStore.updateItem(item.code, 'discountPercent', Math.min(100, Math.max(0, $event)))" />
+                  <span class="disc-amt" [class.has-disc]="item.discountAmount > 0">
+                    @if (item.discountAmount > 0) { -₹{{ item.discountAmount | number:'1.2-2' }} }
+                    @else { — }
+                  </span>
+                </div>
+              </div>
+
+              <!-- Line Total -->
+              <span class="po-col col-total num total-val">₹{{ item.lineTotal | number:'1.2-2' }}</span>
+
+              <!-- Remove -->
+              <div class="po-col col-rm">
+                <button class="remove-btn" (click)="poStore.removeItem(item.code)">✕</button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Totals + Actions (part of body) -->
+      <div class="body-totals">
+        <div class="totals-row">
+          <span class="t-label">Subtotal</span>
+          <span class="t-value">₹{{ poStore.subtotal() | number:'1.2-2' }}</span>
+        </div>
+        <div class="totals-row">
+          <span class="t-label">Total GST</span>
+          <span class="t-value gst-color">+₹{{ poStore.totalGst() | number:'1.2-2' }}</span>
+        </div>
+        <div class="totals-row">
+          <span class="t-label">Total Discount</span>
+          <span class="t-value disc-color">
+            @if (poStore.totalDiscount() > 0) { -₹{{ poStore.totalDiscount() | number:'1.2-2' }} }
+            @else { ₹0.00 }
+          </span>
+        </div>
+        <div class="totals-row totals-grand">
+          <span class="t-label">Grand Total</span>
+          <span class="t-value">₹{{ poStore.grandTotal() | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <div class="body-actions">
+        <button class="btn-draft" (click)="onSaveDraft()">Save Draft</button>
+        <button class="btn-submit" (click)="onSubmit()">Submit PO</button>
+      </div>
+    </div>
+  }
+}
+
+<!-- ═══ VENDOR SWITCH CONFIRMATION DIALOG ═══ -->
+@if (showConfirm()) {
+  <div class="confirm-overlay" (click)="confirmCancel()">
+    <div class="confirm-dialog" (click)="$event.stopPropagation()">
+      <div class="confirm-icon">⚠️</div>
+      <h3 class="confirm-title">Switch Vendor?</h3>
+      <p class="confirm-text">
+        You have <strong>{{ poStore.itemCount() }} item{{ poStore.itemCount() > 1 ? 's' : '' }}</strong>
+        in your current order. Switching vendors will clear them.
+      </p>
+      <p class="confirm-subtext">
+        Would you like to save them as a draft first?
+      </p>
+
+      <div class="confirm-actions">
+        <button class="confirm-btn save" (click)="confirmSaveAndSwitch()">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+            <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z"/>
+            <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z"/>
+          </svg>
+          Save Draft & Switch
+        </button>
+        <button class="confirm-btn discard" (click)="confirmDiscardAndSwitch()">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+            <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.519.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clip-rule="evenodd"/>
+          </svg>
+          Discard & Switch
+        </button>
+      </div>
+      <button class="confirm-btn cancel" (click)="confirmCancel()">
+        Cancel — keep current vendor
+      </button>
+    </div>
+  </div>
+}
+  

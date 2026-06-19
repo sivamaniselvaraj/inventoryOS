@@ -29,6 +29,7 @@ export interface Vendor {
   website?: string;
   notes?: string;
   isActive:boolean;
+  locationIds: string[];   // which user locations this vendor serves
 }
 
 export interface VendorFilter {

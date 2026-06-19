@@ -5,7 +5,6 @@ export interface Product {
   description: string;
   unitPrice: number;
   sellingPrice: number;
-  purchasingPrice: number;
   unitsAvailable: number;
   barcodeValue: string;
   unitOfMeasure: string;
@@ -16,13 +15,17 @@ export interface Product {
   batchNumber: string;
   reorderLevel: number | null;
   maxStockLevel: number | null;
-  vendorIds: string[];
-  preferredVendorId: string | null;
+  //preferredVendorId: string | null;
   createdAt: string;
   updatedAt: string;
+  gstApplicable: boolean;
+  gstRate: number | null;
 }
 
-export type ProductFormData = Omit<Product, 'id' | 'createdAt' | 'updatedAt' | 'vendorIds' | 'preferredVendorId'>;
+export type ProductFormData = Omit<
+  Product,
+  'id' | 'createdAt' | 'updatedAt' | 'vendorIds' | 'preferredVendorId'
+>;
 
 export function createEmptyProduct(): ProductFormData {
   return {
@@ -31,7 +34,6 @@ export function createEmptyProduct(): ProductFormData {
     description: '',
     unitPrice: 0,
     sellingPrice: 0,
-    purchasingPrice: 0,
     unitsAvailable: 0,
     barcodeValue: '',
     unitOfMeasure: '',
@@ -42,6 +44,8 @@ export function createEmptyProduct(): ProductFormData {
     batchNumber: '',
     reorderLevel: null,
     maxStockLevel: null,
+    gstApplicable: false,
+    gstRate: null,
   };
 }
 

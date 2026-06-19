@@ -113,6 +113,195 @@
   padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
 }
 
+/* ==========================================================
+   GST Section
+   ========================================================== */
+.gst-section {
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ---- Toggle Row ---- */
+.gst-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* ---- Toggle Switch ---- */
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggle-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--color-bg-tertiary);
+  border-radius: 999px;
+  transition: background var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.toggle-switch input:checked + .toggle-track {
+  background: var(--color-accent);
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: transform var(--transition-fast);
+}
+
+.toggle-switch input:checked + .toggle-track .toggle-thumb {
+  transform: translateX(20px);
+}
+
+.toggle-state {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  min-width: 28px;
+}
+
+/* ---- GST Fields ---- */
+.gst-fields {
+  margin-top: var(--space-5);
+}
+
+/* ---- GST Rate Picker Grid ---- */
+.gst-rate-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.gst-rate-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-primary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gst-rate-option:hover {
+  border-color: var(--color-text-muted);
+  background: var(--color-bg-hover);
+}
+
+.gst-rate-option.selected {
+  border-color: var(--color-accent);
+  background: rgba(14, 116, 194, 0.04);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.gst-rate-radio {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.gst-rate-label {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.gst-rate-option.selected .gst-rate-label {
+  color: var(--color-accent);
+}
+
+.gst-rate-desc {
+  font-size: 0.6875rem;
+  color: var(--color-text-muted);
+  line-height: 1.35;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ---- GST Summary Card ---- */
+.gst-summary {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.gst-summary-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.gst-summary-row small {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.gst-summary-row span:last-child {
+  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.gst-total {
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--color-border);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.gst-total span:last-child {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
 /* ── Mobile: full-screen sheet ──────────────────────────────── */
 @media (max-width: 640px) {
   /* Overlay loses its padding so the sheet hits the edges */

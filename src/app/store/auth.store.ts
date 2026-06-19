@@ -1,5 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { Router } from '@angular/router';
+import { Injectable, signal, computed, inject } from '@angular/core';
+//import { Router } from '@angular/router';
+import { UserProfile } from '../models';
+import { UserStore } from './user.store';
 
 export interface AuthUser {
   id: string;
@@ -11,14 +13,18 @@ export interface AuthUser {
 
 @Injectable({ providedIn: 'root' })
 export class AuthStore {
+  userStore = inject(UserStore);
   // ── State ──
-  private readonly _currentUser = signal<AuthUser | null>({
-    id: 'u-001',
-    fullName: 'Arjun Mehta',
-    email: 'arjun.mehta@company.com',
-    avatarInitials: 'AM',
-    role: 'Inventory Manager',
-  });
+  // private readonly _currentUser = signal<UserProfile | null>({
+  //   id: 'u-001',
+  //   fullName: 'Arjun Mehta',
+  //   email: 'arjun.mehta@company.com',
+  //   avatarInitials: 'AM',
+  //   role: 'Inventory Manager',
+  // });
+
+
+  private readonly _currentUser =  this.userStore.userProfile;
 
   private readonly _isAuthenticated = signal(true);
 
@@ -40,7 +46,7 @@ export class AuthStore {
   }
 
   /** Simulate login — replace with real auth flow */
-  login(user: AuthUser): void {
+  login(user: UserProfile): void {
     this._currentUser.set(user);
     this._isAuthenticated.set(true);
   }
