@@ -215,7 +215,7 @@ export class VendorStore {
   readonly vendorsForLocation = computed(() => {
     const locId = this.userStore.selectedLocationId();
     if (!locId) return [];
-    return this.vendors().filter(v => v.locationIds.includes(locId));
+    return this.activeVendors().filter(v => v.locationIds.includes(locId));
   });
 
   // ── Computed: products for selected vendor ────────────────────

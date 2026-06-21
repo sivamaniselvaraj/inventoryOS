@@ -3,6 +3,8 @@ export interface ProductVendorLink {
   vendorId: string;
   isPreferred?: boolean;
   unitPrice: number;
+  moq?: number;           // minimum order quantity
+  leadTimeDays?: number;
 }
 
 
