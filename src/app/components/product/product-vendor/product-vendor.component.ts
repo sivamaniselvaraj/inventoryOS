@@ -76,7 +76,7 @@ export class ProductVendorComponent implements OnInit {
     const p = this.product();
     if (!p) return;
     const price = this.newUnitPrice() || p.unitPrice;
-    this.pvStore.addLink(p.productCode, vendorId, price);
+    this.pvStore.addLink(p.productCode, p.productName, vendorId, price);
     this.refresh();
     const vendor = this.vendorStore.getVendorById(vendorId);
     this.notify.success(`${vendor?.vendorName} linked`);

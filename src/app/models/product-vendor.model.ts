@@ -1,5 +1,6 @@
 export interface ProductVendorLink {
   productCode: string;
+  productName: string;
   vendorId: string;
   isPreferred?: boolean;
   unitPrice: number;

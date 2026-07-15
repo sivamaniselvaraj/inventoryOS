@@ -4,15 +4,15 @@ import { ProductVendorLink } from '../models';
 @Injectable({ providedIn: 'root' })
 export class ProductVendorStore {
   private readonly _links = signal<ProductVendorLink[]>([
-    { productCode: 'PRD-1001', vendorId: 'v001', isPreferred: true, unitPrice: 2000 },
-    { productCode: 'PRD-1001', vendorId: 'v002', isPreferred: false, unitPrice: 2100 },
-    { productCode: 'PRD-1002', vendorId: 'v003', isPreferred: true, unitPrice: 280 },
-    { productCode: 'PRD-1002', vendorId: 'v005', isPreferred: false, unitPrice: 300 },
-    { productCode: 'PRD-1003', vendorId: 'v006', isPreferred: true, unitPrice: 450 },
-    { productCode: 'PRD-1004', vendorId: 'v001', isPreferred: false, unitPrice: 980 },
-    { productCode: 'PRD-1004', vendorId: 'v002', isPreferred: true, unitPrice: 950 },
-    { productCode: 'PRD-1004', vendorId: 'v004', isPreferred: false, unitPrice: 1000 },
-    { productCode: 'PRD-1004', vendorId: 'v007', isPreferred: false, unitPrice: 999 },
+    { productCode: 'PRD-1001', vendorId: 'v001', isPreferred: true, unitPrice: 2000, productName: 'Wireless Bluetooth Headphones' },
+    { productCode: 'PRD-1001', vendorId: 'v002', isPreferred: false, unitPrice: 2100, productName: 'Wireless Bluetooth Headphones' },
+    { productCode: 'PRD-1002', vendorId: 'v003', isPreferred: true, unitPrice: 280, productName: 'Organic Green Tea (250g)' },
+    { productCode: 'PRD-1002', vendorId: 'v005', isPreferred: false, unitPrice: 300, productName: 'Organic Green Tea (250g)' },
+    { productCode: 'PRD-1003', vendorId: 'v006', isPreferred: true, unitPrice: 450, productName: 'Stainless Steel Water Bottle (750ml)' },
+    { productCode: 'PRD-1004', vendorId: 'v001', isPreferred: false, unitPrice: 980, productName: 'USB-C Fast Charger 65W' },
+    { productCode: 'PRD-1004', vendorId: 'v002', isPreferred: true, unitPrice: 950, productName: 'USB-C Fast Charger 65W' },
+    { productCode: 'PRD-1004', vendorId: 'v004', isPreferred: false, unitPrice: 1000, productName: 'USB-C Fast Charger 65W' },
+    { productCode: 'PRD-1004', vendorId: 'v007', isPreferred: false, unitPrice: 999, productName: 'USB-C Fast Charger 65W' },
   ]);
 
   readonly links = this._links.asReadonly();
@@ -37,14 +37,15 @@ export class ProductVendorStore {
     return this._links().find((l) => l.productCode === productCode && l.isPreferred);
   }
 
+
   /** Add a vendor link */
-  addLink(productCode: string, vendorId: string, unitPrice: number): void {
+  addLink(productCode: string, productName: string, vendorId: string, unitPrice: number): void {
     const exists = this._links().some((l) => l.productCode === productCode && l.vendorId === vendorId);
     if (exists) return;
     const isFirst = this.getLinksForProduct(productCode).length === 0;
     this._links.update((list) => [
       ...list,
-      { productCode, vendorId, isPreferred: isFirst, unitPrice },
+      { productCode, productName, vendorId, isPreferred: isFirst, unitPrice },
     ]);
   }
 

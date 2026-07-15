@@ -6,10 +6,10 @@ export interface POLineItem {
   unitPrice: number;
   quantity: number;
   gstPercent: number|null;
-  gstAmount: number; // unitPrice * quantity * gstPercent / 100
+  gstAmount: number; // (unitPrice * quantity) - discountAmount * gstPercent / 100
   discountPercent: number;
   discountAmount: number; // unitPrice * quantity * discountPercent / 100
-  lineTotal: number; // (unitPrice * quantity) + gstAmount - discountAmount
+  lineTotal: number; // (unitPrice * quantity) - discountAmount + gstAmount
 }
 
 /* ── Purchase Order ─────────────────────────────────────────────── */

@@ -208,9 +208,9 @@ export class PurchaseOrderStore {
   // ── Private helpers ───────────────────────────────────────────
   private recalcLine(item: POLineItem): POLineItem {
     const base = item.unitPrice * item.quantity;
-    const gstRate = item.gstPercent ? base * item.gstPercent / 100 : 0;
-    item.gstAmount = Math.round(gstRate);
     item.discountAmount = Math.round(base * item.discountPercent / 100 * 100) / 100;
+    const gstRate = item.gstPercent ? (base - item.discountAmount) * item.gstPercent / 100 : 0;
+    item.gstAmount = Math.round(gstRate);
     item.lineTotal = base + item.gstAmount - item.discountAmount;
     return item;
   }

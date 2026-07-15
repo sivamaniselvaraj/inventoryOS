@@ -52,7 +52,28 @@
           <span class="summary-label">Rating</span>
         </div>
       </div>
-
+       <div class="summary-card">
+        <div class="summary-icon icon-margin">
+          <span class="material-icons-outlined">location_on</span>
+        </div>
+        <div class="summary-info">
+          <span class="summary-value">
+            {{ vendor.locationIds.length }}
+          </span>
+          <span class="summary-label">Location</span>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon icon-margin">
+          <span class="material-icons-outlined">view_list</span>
+        </div>
+        <div class="summary-info">
+          <span class="summary-value">
+            {{ vendorProducts().length }}
+          </span>
+          <span class="summary-label">Products</span>
+        </div>
+      </div>
       <div class="summary-card">
         <div class="summary-icon icon-margin">
           <span class="material-icons-outlined">today</span>
@@ -174,6 +195,40 @@
         <p class="notes-text">{{ vendor.notes }}</p>
         </section>
       }
+
+      <section class="card detail-section">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="material-icons-outlined section-icon">group</span>
+            Linked Products ({{ vendorProducts().length }})
+          </h2>
+          <a [routerLink]="['/vendors', this.vendor.id, 'products']" class="btn btn-ghost btn-sm">
+            Manage
+            <span class="material-icons-outlined" style="font-size:16px">arrow_forward</span>
+          </a>
+        </div>
+          @if (vendorProducts().length === 0) {
+          <div class="empty-products">
+            <span class="material-icons-outlined">group_off</span>
+            <p>No Products linked</p>
+            <a [routerLink]="['/vendors', this.vendor.id, 'products']"  class="btn btn-secondary btn-sm">
+              <span class="material-icons-outlined" style="font-size:16px">add</span>
+              Link Product
+            </a>
+          </div>
+        } @else { 
+          <div class="product-chips">
+            @for (item of vendorProducts(); track item.productCode) {
+              <div class="product-chip">
+                <div class="chip-info">
+                  <span class="chip-name">{{ item.productName }}</span>
+                  <span class="chip-meta">{{ item.productCode}} · Unit Price: ₹{{ item.unitPrice.toLocaleString('en-IN') }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
     </div>
      <!-- Metadata Footer -->
     <div class="meta-footer">
