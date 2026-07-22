@@ -10,6 +10,8 @@ export class ProductStore {
       productCode: 'PRD-1001',
       productName: 'Wireless Bluetooth Headphones',
       description: 'Noise-cancelling over-ear headphones with 30hr battery life',
+      category: 'equipment',
+      currency: 'INR',
       unitPrice: 2500,
       sellingPrice: 3499,
       unitsAvailable: 150,
@@ -33,6 +35,8 @@ export class ProductStore {
       productCode: 'PRD-1002',
       productName: 'Organic Green Tea (250g)',
       description: 'Premium Darjeeling green tea leaves, organically grown',
+      category: 'consumables',
+      currency: 'INR',
       unitPrice: 350,
       sellingPrice: 499,
       unitsAvailable: 420,
@@ -56,6 +60,8 @@ export class ProductStore {
       productCode: 'PRD-1003',
       productName: 'Stainless Steel Water Bottle (750ml)',
       description: 'Double-walled vacuum insulated, keeps drinks cold 24h / hot 12h',
+      category: 'raw-material',
+      currency: 'INR',
       unitPrice: 600,
       sellingPrice: 899,
       unitsAvailable: 85,
@@ -79,6 +85,8 @@ export class ProductStore {
       productCode: 'PRD-1004',
       productName: 'USB-C Fast Charger 65W',
       description: 'GaN technology, supports PD 3.0 & QC 4.0, compact foldable plug',
+      category: 'consumables',
+      currency: 'INR',
       unitPrice: 1200,
       sellingPrice: 1799,
       unitsAvailable: 320,
@@ -102,6 +110,8 @@ export class ProductStore {
       productCode: 'PRD-1005',
       productName: 'Bamboo Desk Organizer',
       description: 'Multi-compartment organizer with phone holder slot, eco-friendly bamboo',
+      category: 'consumables',
+      currency: 'INR',
       unitPrice: 800,
       sellingPrice: 1199,
       unitsAvailable: 5,
@@ -121,14 +131,23 @@ export class ProductStore {
       gstRate: null,
     },
   ]);
+  
   private readonly _formMode = signal<'add' | 'edit' | null>(null);
   private readonly _loading = signal(false);
   private readonly _searchTerm = signal('');
+  private readonly _categoryFilter = signal<string>('');
+  
 
   // ── Public Selectors ──
   readonly products = this._products.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly searchTerm = this._searchTerm.asReadonly();
+  readonly categoryFilter = this._categoryFilter.asReadonly();
+
+  readonly categories = computed(() => {
+    const cats = new Set(this._products().map(p => p.category));
+    return Array.from(cats).sort();
+  });
 
   readonly filteredProducts = computed(() => {
     const term = this._searchTerm().toLowerCase().trim();

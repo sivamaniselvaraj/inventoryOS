@@ -10,7 +10,7 @@ import { Product, Vendor, ProductVendorLink } from '../../../models';
   standalone: true,
   imports: [RouterLink, FormsModule],
   templateUrl: './product-vendor.component.html',
-  styleUrl: './product-vendor.component.css',
+  styleUrl: './product-vendor.component.scss',
 })
 export class ProductVendorComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

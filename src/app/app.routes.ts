@@ -41,6 +41,13 @@ export const routes: Routes = [
       ),
     title: 'Edit Vendor',
   },
+  {
+    path: 'vendors/:id/products',
+    loadComponent: () =>
+      import('./components/vendor/product-link/product-link.component').then(
+        (m) => m.ProductLinkComponent,
+      ),
+  },
   /* Products Router */
   {
     path: 'products',

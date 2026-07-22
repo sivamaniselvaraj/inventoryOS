@@ -5,6 +5,7 @@ import { PurchaseOrderStore, VendorStore, UserStore } from '../../../store';
 import { VendorProduct } from '../../../models';
 import { LocationSelectorComponent } from '../../selectors/location-selector/location-selector.component';
 import { VendorSelectorComponent } from '../../selectors/vendor-selector/vendor-selector.component';
+import { WhatsappService } from '@services/whatsapp.service';
 
 @Component({
   selector: 'app-po-create',
@@ -17,6 +18,7 @@ export class PoCreateComponent {
   readonly poStore       = inject(PurchaseOrderStore);
   readonly vendorStore   = inject(VendorStore);
   readonly userStore = inject(UserStore);
+  readonly whatsapp = inject(WhatsappService);
   readonly Math = Math;
 
   readonly productFilter    = signal('');
@@ -31,6 +33,8 @@ export class PoCreateComponent {
 
    /** Called when the vendor-selector emits a change */
   onVendorChange(vendorId: string): void {
+
+    this.whatsapp.loadMetaGroups();
     // No items or same vendor → switch directly
     if (!this.poStore.hasItems() || vendorId === this.vendorStore.selectedVendorId()) {
       this.switchVendor(vendorId);

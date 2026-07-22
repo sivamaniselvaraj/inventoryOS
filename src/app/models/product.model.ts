@@ -1,3 +1,6 @@
+/* ── Product master catalog ─────────────────────────────── */
+export type ProductCategory = 'infrastructure' | 'software' | 'raw-material' | 'logistics' | 'consumables' | 'equipment' | 'services';
+
 export interface Product {
   id: string;
   productCode: string;
@@ -5,6 +8,8 @@ export interface Product {
   description: string;
   unitPrice: number;
   sellingPrice: number;
+  category:ProductCategory;
+  currency:string
   unitsAvailable: number;
   barcodeValue: string;
   unitOfMeasure: string;
@@ -32,6 +37,8 @@ export function createEmptyProduct(): ProductFormData {
     productCode: '',
     productName: '',
     description: '',
+    category:'services',
+    currency:'INR',
     unitPrice: 0,
     sellingPrice: 0,
     unitsAvailable: 0,

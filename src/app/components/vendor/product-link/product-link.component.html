@@ -1,0 +1,196 @@
+<div class="pl-page animate-in">
+
+  <!-- Page Header -->
+      <div class="page-header">
+      <div>
+        <div class="breadcrumb">
+          <a routerLink="/vendors" class="breadcrumb-link">Vendors</a>
+          <span class="material-icons-outlined breadcrumb-sep">chevron_right</span>
+          <a [routerLink]="['/vendors', vendor()?.id]" class="breadcrumb-link"><span>{{ vendor()?.vendorName }}</span></a>
+          <span class="material-icons-outlined breadcrumb-sep">chevron_right</span>
+          <span>Products</span>
+        </div>
+        <h1 class="page-title">Manage Vendors</h1>
+        <p class="page-subtitle">
+          Link products to <strong>{{ vendor()?.vendorName }}</strong> ({{ vendor()?.vendorCode }})
+        </p>
+      </div>
+    </div>
+
+  <div class="pl-body">
+
+    <!-- ══════ Linked Products ══════ -->
+    <section class="pl-section">
+      <div class="section-bar">
+        <h2 class="section-title">Linked Products ({{ linkedProducts().length }})</h2>
+      </div>
+
+      @if (linkedProducts().length === 0) {
+        <div class="pl-empty">
+          <span class="pl-empty-icon">☐</span>
+          <p>No products linked yet. Select from the available products below.</p>
+        </div>
+      }
+
+      @if (linkedProducts().length > 0) {
+        <div class="linked-list">
+          @for (item of linkedEnriched(); track item.productCode) {
+
+            <!-- View mode -->
+            @if (editingCode() !== item.productCode) {
+              <div class="linked-card" [class.preferred]="item.isPreferred">
+                <div class="lc-main">
+                  <div class="lc-code">{{ item.productCode }}</div>
+                  <div class="lc-info">
+                    <span class="lc-name">{{ item.productName }}</span>
+                    @if (item.product) {
+                      <!-- <span class="lc-cat-badge">{{ categoryLabel(item.product.category) }}</span> -->
+                    }
+                    <div class="lc-meta">
+                      <!-- <span class="lc-price">{{ item.unitPrice | currency:item.currency:'symbol-narrow':'1.0-0' }}</span> -->
+                      <span class="lc-sep">·</span>
+                      <span>MOQ {{ item.moq }}</span>
+                      <span class="lc-sep">·</span>
+                      <span>{{ item.leadTimeDays }}d lead</span>
+                      @if (item.product) {
+                        <span class="lc-sep">·</span>
+                        <span class="lc-unit">{{ item.product.unitsAvailable }}</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="lc-actions">
+                  <button class="icon-btn pref" [class.active]="item.isPreferred"
+                    (click)="togglePreferred(item)" title="Toggle preferred">
+                    {{ item.isPreferred ? '★' : '☆' }}
+                  </button>
+                  <button class="icon-btn edit" (click)="startEdit(item)" title="Edit terms">✎</button>
+                  <button class="icon-btn remove" (click)="unlinkProduct(item)" title="Remove">✕</button>
+                </div>
+              </div>
+            }
+
+            <!-- Edit mode -->
+            @if (editingCode() === item.productCode) {
+              <div class="linked-card editing">
+                <div class="edit-header">
+                  <span class="lc-code">{{ item.productCode }}</span>
+                  <span class="lc-name">{{ item.productName }}</span>
+                </div>
+                <div class="edit-fields">
+                  <div class="edit-row">
+                    <div class="form-group">
+                      <label class="form-label">Unit Price (₹)</label>
+                      <input type="number" class="form-control" [(ngModel)]="editForm.unitPrice" min="1" />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">MOQ</label>
+                      <input type="number" class="form-control" [(ngModel)]="editForm.moq" min="1" />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Lead Time (days)</label>
+                      <input type="number" class="form-control" [(ngModel)]="editForm.leadTimeDays" min="1" />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Preferred</label>
+                      <label class="toggle-label">
+                        <input type="checkbox" [(ngModel)]="editForm.isPreferred" />
+                        <span>{{ editForm.isPreferred ? 'Yes' : 'No' }}</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="edit-footer">
+                  <button class="btn btn-secondary btn-sm" (click)="cancelEdit()">Cancel</button>
+                  <button class="btn btn-primary btn-sm" (click)="saveEdit(item)">Save</button>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ══════ Available Products ══════ -->
+    <section class="pl-section">
+      <div class="section-bar">
+        <h2 class="section-title">Available Products ({{ availableProducts().length }})</h2>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="avail-filters">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input class="search-input" type="text" placeholder="Search products..."
+            [ngModel]="search()" (ngModelChange)="search.set($event)" />
+        </div>
+        <select class="filter-select"
+          [ngModel]="categoryFilter()" (ngModelChange)="categoryFilter.set($event)">
+          <option value="">All Categories</option>
+          @for (cat of categories(); track cat) {
+            <option [value]="cat">{{ categoryLabel(cat) }}</option>
+          }
+        </select>
+      </div>
+
+      @if (availableProducts().length === 0) {
+        <div class="pl-empty small">
+          <p>No products match your search, or all products are already linked.</p>
+        </div>
+      }
+
+      <!-- Product catalog grid -->
+      <div class="avail-grid">
+        @for (product of availableProducts(); track product.productCode) {
+          <div class="avail-card" [class.selecting]="linkingProduct()?.productCode === product.productCode">
+            <div class="ac-top">
+              <span class="ac-code">{{ product.productCode }}</span>
+              <!-- <span class="ac-cat">{{ categoryLabel(product.category) }}</span> -->
+            </div>
+            <span class="ac-name">{{ product.productName }}</span>
+            <span class="ac-desc">{{ product.description }}</span>
+            <div class="ac-bottom">
+              <span class="ac-price">{{ product.sellingPrice | currency:product.currency:'symbol-narrow':'1.0-0' }} <span class="ac-unit">{{ product.unitPrice }}</span></span>
+
+              @if (linkingProduct()?.productCode !== product.productCode) {
+                <button class="btn btn-primary btn-sm" (click)="startLink(product)">+ Link</button>
+              }
+            </div>
+
+            <!-- Inline link form -->
+            @if (linkingProduct()?.productCode === product.productCode) {
+              <div class="link-form animate-in">
+                <h4 class="lf-title">Set Vendor Terms</h4>
+                <div class="lf-fields">
+                  <div class="form-group">
+                    <label class="form-label">Unit Price (₹)</label>
+                    <input type="number" class="form-control" [(ngModel)]="linkForm.unitPrice" min="1" />
+                  </div>
+                  <div class="lf-row">
+                    <div class="form-group">
+                      <label class="form-label">MOQ</label>
+                      <input type="number" class="form-control" [(ngModel)]="linkForm.moq" min="1" />
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Lead (days)</label>
+                      <input type="number" class="form-control" [(ngModel)]="linkForm.leadTimeDays" min="1" />
+                    </div>
+                  </div>
+                  <label class="toggle-label">
+                    <input type="checkbox" [(ngModel)]="linkForm.isPreferred" />
+                    <span>Preferred vendor for this product</span>
+                  </label>
+                </div>
+                <div class="lf-actions">
+                  <button class="btn btn-secondary btn-sm" (click)="cancelLink()">Cancel</button>
+                  <button class="btn btn-primary btn-sm" (click)="confirmLink()">Confirm Link</button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+  </div>
+</div>
